@@ -4,16 +4,16 @@
 // table cell collapses the image to 0, which made the contact icons vanish). A client that drops <style>
 // (e.g. a paste into Gmail compose) keeps the desktop sizes, which fit the 660px card.
 
-export const FOOTER_START = '<!--FOOTER-V16-->';
-export const FOOTER_END = '<!--/FOOTER-V16-->';
-const CSS_MARK = '/*FOOTER-V16*/';
+export const FOOTER_START = '<!--FOOTER-V17-->';
+export const FOOTER_END = '<!--/FOOTER-V17-->';
+const CSS_MARK = '/*FOOTER-V17*/';
 
 export const FOOTER_CSS = `${CSS_MARK}
   @media only screen and (max-width:620px) {
     .ft-head { font-size:10px !important; letter-spacing:0.2px !important; }
     .ft-hr { font-size:9px !important; }
-    .ft-txt { font-size:9px !important; line-height:13px !important; }
-    .ft-sm { font-size:7.5px !important; }
+    .ft-txt { font-size:7px !important; line-height:12px !important; }
+    .ft-sm { font-size:7px !important; }
     .ft-ico { width:11px !important; height:11px !important; }
     .ft-soc { width:20px !important; height:auto !important; }
   }
@@ -45,13 +45,13 @@ const mapUrl = (query: string) => `https://www.google.com/maps/search/?api=1&amp
 function contact(icon: string, w: number, h: number, alt: string, inner: string) {
   return `<tr>
             <td width="13" valign="middle" style="width:13px;padding:3px 6px 3px 0;"><img class="ft-ico" src="/email/${icon}.png" width="${w}" height="${h}" alt="${alt}" style="display:block;width:${w}px;height:${h}px;border:0;"></td>
-            <td class="ft-txt" valign="middle" style="${FONT}font-size:10px;line-height:14px;color:${WHITE};padding:3px 0;white-space:nowrap;">${inner}</td>
+            <td class="ft-txt" valign="middle" style="${FONT}font-size:8px;line-height:13px;color:${WHITE};padding:3px 0;white-space:nowrap;">${inner}</td>
           </tr>`;
 }
 
 function office(label: string, address: string, query: string) {
   const href = mapUrl(query);
-  return `<tr><td class="ft-txt" style="${FONT}font-size:10px;line-height:14px;color:${WHITE};padding:3px 14px 3px 0;white-space:normal;"><a href="${href}" target="_blank" style="color:${ORANGE};font-weight:bold;text-decoration:none;">${label}:</a> <a href="${href}" target="_blank" style="color:${WHITE};text-decoration:none;">${address}</a></td></tr>`;
+  return `<tr><td class="ft-txt" style="${FONT}font-size:8px;line-height:13px;color:${WHITE};padding:3px 8px 3px 0;white-space:nowrap;"><a href="${href}" target="_blank" style="color:${ORANGE};font-weight:bold;text-decoration:none;">${label}:</a> <a href="${href}" target="_blank" style="color:${WHITE};text-decoration:none;">${address}</a></td></tr>`;
 }
 
 const SOCIALS: [string, string, string][] = [
@@ -81,7 +81,7 @@ export const EMAIL_FOOTER = `${FOOTER_START}
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;"><tr>
     <td valign="top" style="padding-right:12px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr><td class="ft-head" style="${FONT}font-size:11.5px;line-height:15px;font-weight:bold;color:${WHITE};letter-spacing:0.4px;padding:0 0 9px 1px;white-space:nowrap;">CÔNG TY TNHH TƯ VẤN DU HỌC CATHOLIC MTA</td></tr>
+        <tr><td class="ft-head" style="${FONT}font-size:10.5px;line-height:15px;font-weight:bold;color:${WHITE};letter-spacing:0.4px;padding:0 0 9px 1px;white-space:nowrap;">CÔNG TY TNHH TƯ VẤN DU HỌC CATHOLIC MTA</td></tr>
         <tr><td>
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
             <td valign="top" style="padding-right:8px;">
@@ -102,11 +102,11 @@ export const EMAIL_FOOTER = `${FOOTER_START}
         </td></tr>
       </table>
     </td>
-    <td class="ft-r" valign="top" width="218" align="center" style="width:218px;border-left:1px solid #3A5A8C;padding-left:12px;text-align:center;">
+    <td class="ft-r" valign="top" width="200" align="center" style="width:200px;border-left:1px solid #3A5A8C;padding-left:12px;text-align:center;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr><td align="center" class="ft-hr" style="${FONT}font-size:9.5px;line-height:15px;font-weight:bold;color:${WHITE};letter-spacing:0.2px;padding-bottom:9px;text-align:center;white-space:nowrap;">HÃY KẾT NỐI CÙNG CHÚNG TÔI</td></tr>
         <tr><td align="center"><table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr>${socialCells}</tr></table></td></tr>
-        <tr><td align="center" class="ft-sm" style="${FONT}font-size:8px;line-height:12px;color:${WHITE};padding-top:7px;white-space:nowrap;text-align:center;">${SOCIALS.map(([n]) => n).join(' · ')}</td></tr>
+        <tr><td align="center" class="ft-sm" style="${FONT}font-size:7.5px;line-height:12px;color:${WHITE};padding-top:7px;white-space:nowrap;text-align:center;">${SOCIALS.map(([n]) => n).join(' · ')}</td></tr>
       </table>
     </td>
   </tr></table>
