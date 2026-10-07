@@ -1,6 +1,7 @@
 import { connectDB } from '@/lib/mongoose';
 import { Traveler, type TravelerDoc } from '@/models/Traveler';
 import { ok, withErrorHandling } from '@/lib/api-handler';
+import { studentNamesById } from '@/lib/travelers/student-names';
 import { createTravelerSchema, listTravelersQuerySchema, toCreateData, toTravelerDTO } from '@/lib/travelers/dto';
 
 export const GET = withErrorHandling(async (req) => {
@@ -33,7 +34,8 @@ export const GET = withErrorHandling(async (req) => {
     Traveler.countDocuments(where),
   ]);
 
-  return ok(items.map(toTravelerDTO), 200, { total, page, limit, pages: Math.ceil(total / limit) || 1 });
+  const names = await studentNamesById(items.map((t) => t.studentId));
+  return ok(items.map((t) => toTravelerDTO(t, names.get(String(t.studentId)))), 200, { total, page, limit, pages: Math.ceil(total / limit) || 1 });
 });
 
 export const POST = withErrorHandling(async (req) => {

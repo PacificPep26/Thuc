@@ -1,10 +1,13 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { travelerApi } from '../traveler.api';
 import type { Traveler, UpdateTravelerInput } from '../traveler.types';
+import { StudentPicker } from '../StudentPicker';
+
+export const RELATION_OPTIONS = ['Cha', 'Mẹ', 'Anh/chị/em', 'Người giám hộ', 'Khác'] as const;
 
 interface ProfileTabProps {
   traveler: Traveler;
@@ -12,6 +15,7 @@ interface ProfileTabProps {
 
 type FormValues = {
   fullName: string;
+  studentId: string;
   relationToStudent: string;
   email: string;
   phone: string;
@@ -38,6 +42,7 @@ type FormValues = {
 function toFormValues(traveler: Traveler): FormValues {
   return {
     fullName: traveler.personal.fullName ?? '',
+    studentId: traveler.studentId ?? '',
     relationToStudent: traveler.personal.relationToStudent ?? '',
     email: traveler.personal.email ?? '',
     phone: traveler.personal.phone ?? '',
@@ -68,7 +73,9 @@ const labelClass = 'mb-1 block text-sm font-medium text-card-foreground';
 
 export function ProfileTab({ traveler }: ProfileTabProps) {
   const queryClient = useQueryClient();
-  const { register, handleSubmit, reset, formState } = useForm<FormValues>({ defaultValues: toFormValues(traveler) });
+  const { register, handleSubmit, reset, formState, watch, setValue } = useForm<FormValues>({ defaultValues: toFormValues(traveler) });
+  const studentId = watch('studentId');
+  const [studentName, setStudentName] = useState(traveler.studentName);
 
   useEffect(() => {
     reset(toFormValues(traveler));
@@ -84,6 +91,7 @@ export function ProfileTab({ traveler }: ProfileTabProps) {
 
   function onSubmit(values: FormValues) {
     updateMutation.mutate({
+      studentId: values.studentId || null,
       personal: {
         fullName: values.fullName,
         relationToStudent: values.relationToStudent || undefined,
@@ -126,7 +134,27 @@ export function ProfileTab({ traveler }: ProfileTabProps) {
           </div>
           <div>
             <label className={labelClass}>Quan hệ với học sinh</label>
-            <input {...register('relationToStudent')} className={inputClass} />
+            <select {...register('relationToStudent')} className={inputClass}>
+              <option value="">—</option>
+              {/* Keep an older free-text value selectable until staff pick a standard one. */}
+              {traveler.personal.relationToStudent && !(RELATION_OPTIONS as readonly string[]).includes(traveler.personal.relationToStudent) && (
+                <option value={traveler.personal.relationToStudent}>{traveler.personal.relationToStudent}</option>
+              )}
+              {RELATION_OPTIONS.map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelClass}>Học sinh liên quan</label>
+            <StudentPicker
+              studentId={studentId || null}
+              studentName={studentName}
+              onChange={(student) => {
+                setValue('studentId', student?.id ?? '', { shouldDirty: true });
+                setStudentName(student?.name);
+              }}
+            />
           </div>
           <div>
             <label className={labelClass}>Email</label>

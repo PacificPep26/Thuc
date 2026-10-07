@@ -143,11 +143,12 @@ export function toUpdateData(input: UpdateTravelerInput) {
 
 type TravelerLike = TravelerDoc & { _id: unknown };
 
-export function toTravelerDTO(traveler: TravelerLike) {
+export function toTravelerDTO(traveler: TravelerLike, studentName?: string) {
   const t = traveler;
   return {
     id: String(t._id),
     studentId: t.studentId ?? undefined,
+    studentName,
     personal: {
       fullName: t.fullName,
       dateOfBirth: t.dateOfBirth,

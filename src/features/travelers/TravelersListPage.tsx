@@ -6,6 +6,7 @@ import { AlertCircle, Plus, Search } from 'lucide-react';
 import { travelerApi } from './traveler.api';
 import { CreateTravelerModal } from './CreateTravelerModal';
 import { TravelerDetailModal, type TravelerDetailTabKey } from './detail/TravelerDetailModal';
+import { StudentDetailModal } from '@/features/students/detail/StudentDetailModal';
 import { StageSelect } from './StageSelect';
 import { stageApi } from '@/features/stages/stage.api';
 import { cn } from '@/lib/utils';
@@ -51,6 +52,7 @@ export function TravelersListPage() {
   const [selectedQuickFilter, setSelectedQuickFilter] = useState<'all' | 'visa'>('all');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedTravelerId, setSelectedTravelerId] = useState<string | null>(null);
+  const [linkedStudentId, setLinkedStudentId] = useState<string | null>(null);
   const [detailInitialTab, setDetailInitialTab] = useState<TravelerDetailTabKey | undefined>(undefined);
 
   const { data, isLoading, isError } = useQuery({
@@ -152,6 +154,7 @@ export function TravelersListPage() {
       </div>
 
       <CreateTravelerModal open={isCreateOpen} onOpenChange={setIsCreateOpen} />
+      <StudentDetailModal studentId={linkedStudentId} onOpenChange={(open) => !open && setLinkedStudentId(null)} />
       <TravelerDetailModal
         travelerId={selectedTravelerId}
         initialTab={detailInitialTab}
@@ -290,7 +293,25 @@ export function TravelersListPage() {
                 className="cursor-pointer border-b border-border last:border-0 hover:bg-muted/40"
               >
                 <td className="px-4 py-3 font-medium text-card-foreground">{traveler.personal.fullName}</td>
-                <td className="px-4 py-3 text-muted-foreground">{traveler.personal.relationToStudent ?? '—'}</td>
+                <td className="px-4 py-3 text-muted-foreground">
+                  {traveler.studentId && traveler.studentName ? (
+                    <span>
+                      {traveler.personal.relationToStudent ? `${traveler.personal.relationToStudent} của ` : 'Người thân của '}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLinkedStudentId(traveler.studentId!);
+                        }}
+                        className="font-medium text-primary underline-offset-2 hover:underline"
+                      >
+                        {traveler.studentName}
+                      </button>
+                    </span>
+                  ) : (
+                    traveler.personal.relationToStudent ?? '—'
+                  )}
+                </td>
                 <td className="px-4 py-3 text-muted-foreground">
                   {traveler.travel?.destinationCountry
                     ? countryLabels[traveler.travel.destinationCountry] ?? traveler.travel.destinationCountry

@@ -4,6 +4,8 @@ export type TravelerStage = string;
 export interface Traveler {
   id: string;
   studentId?: string;
+  // Name of the linked student, filled in by the API.
+  studentName?: string;
   personal: {
     fullName: string;
     dateOfBirth?: string;

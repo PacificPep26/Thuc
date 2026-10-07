@@ -13,6 +13,7 @@ import { DocumentsTab } from './DocumentsTab';
 import { FormsTab } from './FormsTab';
 import { UnsavedChangesDialog } from '@/components/UnsavedChangesDialog';
 import { EmailsTab } from './EmailsTab';
+import { RelativesTab } from './RelativesTab';
 import { cn } from '@/lib/utils';
 
 const TABS = [
@@ -20,6 +21,7 @@ const TABS = [
   { key: 'notes', label: 'Việc cần làm' },
   { key: 'checklist', label: 'Checklist' },
   { key: 'profile', label: 'Hồ sơ' },
+  { key: 'relatives', label: 'Người thân' },
   { key: 'documents', label: 'Tài liệu' },
   { key: 'forms', label: 'Biểu mẫu' },
   { key: 'emails', label: 'Email' },
@@ -158,6 +160,7 @@ function StudentDetailModalContent({ studentId, initialTab, onOpenChange }: Stud
                   {activeTab === 'documents' && <DocumentsTab studentId={student.id} />}
                   {activeTab === 'emails' && <EmailsTab student={student} />}
                   {activeTab === 'forms' && <FormsTab studentId={student.id} />}
+                  {activeTab === 'relatives' && <RelativesTab student={student} />}
                 </>
               )}
             </div>
