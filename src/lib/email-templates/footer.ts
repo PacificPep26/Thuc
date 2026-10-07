@@ -4,9 +4,9 @@
 // table cell collapses the image to 0, which made the contact icons vanish). A client that drops <style>
 // (e.g. a paste into Gmail compose) keeps the desktop sizes, which fit the 660px card.
 
-export const FOOTER_START = '<!--FOOTER-V18-->';
-export const FOOTER_END = '<!--/FOOTER-V18-->';
-const CSS_MARK = '/*FOOTER-V18*/';
+export const FOOTER_START = '<!--FOOTER-V19-->';
+export const FOOTER_END = '<!--/FOOTER-V19-->';
+const CSS_MARK = '/*FOOTER-V19*/';
 
 export const FOOTER_CSS = `${CSS_MARK}
   @media only screen and (max-width:620px) {
@@ -17,23 +17,34 @@ export const FOOTER_CSS = `${CSS_MARK}
     .ft-ico { width:11px !important; height:11px !important; }
     .ft-soc { width:20px !important; height:auto !important; }
   }
+  /* Phones: contacts sit above the offices (one column) so every line is nowrap and short enough, smaller text, tighter padding. */
   @media only screen and (max-width:520px) {
-    .ft-head { font-size:9px !important; white-space:normal !important; }
-    .ft-r { width:170px !important; }
-    .ft-hr { font-size:8px !important; }
-    .ft-txt { font-size:8px !important; line-height:12px !important; white-space:normal !important; }
-    .ft-sm { font-size:6.5px !important; }
+    .ft-box { padding:10px 8px 9px !important; }
+    .ft-c, .ft-o { display:block !important; width:100% !important; padding-right:0 !important; }
+    .ft-c { padding-bottom:3px !important; }
+    .ft-head { font-size:7.5px !important; letter-spacing:0 !important; padding-bottom:5px !important; }
+    .ft-r { width:150px !important; padding-left:6px !important; }
+    .ft-hr { font-size:6.5px !important; letter-spacing:0 !important; padding-bottom:5px !important; }
+    .ft-txt { font-size:6.8px !important; line-height:10px !important; padding-top:1px !important; padding-bottom:1px !important; }
+    .ft-sm { font-size:5.8px !important; padding-top:4px !important; }
     .ft-ico { width:9px !important; height:9px !important; }
-    .ft-soc { width:16px !important; }
+    .ft-soc { width:17px !important; }
   }
   @media only screen and (max-width:440px) {
-    .ft-head { font-size:7.5px !important; letter-spacing:0 !important; white-space:normal !important; }
-    .ft-r { width:132px !important; padding-left:8px !important; }
-    .ft-hr { font-size:6.5px !important; letter-spacing:0 !important; }
-    .ft-txt { font-size:7.5px !important; line-height:11px !important; white-space:normal !important; }
-    .ft-sm { font-size:5.5px !important; }
+    .ft-head { font-size:6.8px !important; }
+    .ft-r { width:128px !important; padding-left:5px !important; }
+    .ft-hr { font-size:5.6px !important; }
+    .ft-txt { font-size:6.2px !important; line-height:9px !important; }
+    .ft-sm { font-size:5px !important; }
     .ft-ico { width:8px !important; height:8px !important; }
-    .ft-soc { width:16px !important; }
+    .ft-soc { width:14px !important; }
+  }
+  @media only screen and (max-width:380px) {
+    .ft-head { font-size:6.2px !important; }
+    .ft-r { width:112px !important; }
+    .ft-txt { font-size:5.6px !important; }
+    .ft-hr { font-size:5px !important; }
+    .ft-soc { width:12px !important; }
   }`;
 
 const FONT = 'font-family:Arial,Helvetica,sans-serif;';
@@ -77,21 +88,21 @@ const FOOTER_STRIP = `<!--FOOTER-STRIP--><tr><td>
 </td></tr>`;
 
 export const EMAIL_FOOTER = `${FOOTER_START}
-<tr><td bgcolor="#002B66" style="background-color:#002B66;padding:16px 12px 13px;">
+<tr><td class="ft-box" bgcolor="#002B66" style="background-color:#002B66;padding:16px 12px 13px;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;"><tr>
     <td valign="top" style="padding-right:12px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr><td class="ft-head" style="${FONT}font-size:10.5px;line-height:15px;font-weight:bold;color:${WHITE};letter-spacing:0.4px;padding:0 0 9px 1px;white-space:nowrap;">CÔNG TY TNHH TƯ VẤN DU HỌC CATHOLIC MTA</td></tr>
         <tr><td>
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-            <td valign="top" style="padding-right:8px;">
+            <td class="ft-c" valign="top" style="padding-right:8px;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
           ${contact('ft-phone', 13, 13, 'Điện thoại', `<a href="tel:+84909451822" style="color:${WHITE};text-decoration:none;">${nb('0909 451 822')}</a> – <a href="tel:+84902968652" style="color:${WHITE};text-decoration:none;">${nb('0902 968 652')}</a>`)}
           ${contact('ft-mail', 13, 11, 'Email', `<a href="mailto:info@mtacorporation.com" style="color:${WHITE};text-decoration:underline;">info@mtacorporation.com</a>`)}
           ${contact('ft-web', 13, 13, 'Website', `<a href="https://catholicmta.edu.vn" target="_blank" style="color:${WHITE};text-decoration:underline;">catholicmta.edu.vn</a>`)}
               </table>
             </td>
-            <td valign="top" width="100%">
+            <td class="ft-o" valign="top" width="100%">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
           ${office('Việt Nam', '45 Đinh Tiên Hoàng, Phường Sài Gòn, TP.HCM', '45+%C4%90inh+Ti%C3%AAn+Ho%C3%A0ng%2C+Ph%C6%B0%E1%BB%9Dng+S%C3%A0i+G%C3%B2n%2C+TP.HCM')}
           ${office('Hoa Kỳ', '8107 Bolsa Ave, Midway City, CA 92655', '8107+Bolsa+Ave%2C+Midway+City%2C+CA+92655')}
