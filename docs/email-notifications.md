@@ -1,6 +1,6 @@
 # Progress-update emails (students)
 
-When staff move a student to a later stage, a popup prefills the stage's email; staff review/edit it and press Gửi. Sent via Resend, branded no-reply letterhead. Students only — travelers have no emails.
+Staff open the stage email from the Mail button (student list or Emails tab); a popup prefills the stage's email, they review/edit it and press Gửi. Moving a student to a later stage no longer opens the popup on its own (`OPEN_EMAIL_ON_STAGE_MOVE` in `StageSelect.tsx`). Sent via Resend, branded no-reply letterhead. Students only — travelers have no emails.
 
 ## Map
 

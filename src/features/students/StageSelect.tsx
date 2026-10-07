@@ -8,6 +8,10 @@ import { StagePicker } from '@/features/stages/StagePicker';
 import { presetAppliesTo } from '@/lib/notifications/templates';
 import { ProgressEmailModal } from '@/features/notifications/ProgressEmailModal';
 
+// Moving a student forward used to open the stage email popup straight away. Staff now send mail on purpose
+// from the Mail button, so a stage change never prompts or sends anything. Set to true to bring the popup back.
+const OPEN_EMAIL_ON_STAGE_MOVE = false;
+
 interface StageSelectProps {
   studentId: string;
   stage: string;
@@ -30,7 +34,7 @@ export function StageSelect({ studentId, stage, country, className }: StageSelec
       const from = stages?.find((s) => s.key === stage);
       const to = stages?.find((s) => s.key === newStage);
       const applies = presetAppliesTo(to?.emailTemplate?.presetKey, country);
-      if (to?.emailTemplate?.enabled && applies && (!from || to.order > from.order)) setEmailStage(newStage);
+      if (OPEN_EMAIL_ON_STAGE_MOVE && to?.emailTemplate?.enabled && applies && (!from || to.order > from.order)) setEmailStage(newStage);
     },
   });
 
