@@ -44,7 +44,9 @@ const inputClass =
 
 function loadStaff(): Record<string, string> {
   try {
-    return JSON.parse(localStorage.getItem(STAFF_STORAGE_KEY) ?? '{}');
+    // Old browsers may still hold the retired staff fields; only keys the server accepts may be sent.
+    const stored = JSON.parse(localStorage.getItem(STAFF_STORAGE_KEY) ?? '{}') as Record<string, string>;
+    return Object.fromEntries(Object.entries(stored).filter(([key]) => (STAFF_FIELD_KEYS as string[]).includes(key)));
   } catch {
     return {};
   }

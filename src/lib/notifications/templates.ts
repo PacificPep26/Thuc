@@ -131,9 +131,6 @@ export function getPreset(key: string | undefined) {
 // `type` drives the input control in the send popup.
 export const NOTIFY_FIELDS = [
   { key: 'tenPhuHuynh', label: 'Tên phụ huynh', type: 'text' },
-  { key: 'tenNhanVien', label: 'Tên nhân viên', type: 'text' },
-  { key: 'sdtNhanVien', label: 'SĐT nhân viên', type: 'text' },
-  { key: 'emailNhanVien', label: 'Email nhân viên', type: 'email' },
   { key: 'ngayKyHopDong', label: 'Ngày ký hợp đồng', type: 'date' },
   { key: 'hanNopGiayTo', label: 'Hạn nộp giấy tờ', type: 'date' },
   { key: 'ngayNopHoSo', label: 'Ngày nộp hồ sơ', type: 'date' },
@@ -150,7 +147,8 @@ export type NotifyFieldKey = (typeof NOTIFY_FIELDS)[number]['key'];
 export type NotifyInfo = Partial<Record<NotifyFieldKey, string>>;
 
 // Staff fields are remembered per browser so each staff member types them once.
-export const STAFF_FIELD_KEYS: NotifyFieldKey[] = ['tenNhanVien', 'sdtNhanVien', 'emailNhanVien'];
+// The sender's name/phone/email now live in the email signature, so no staff fields are asked for any more.
+export const STAFF_FIELD_KEYS: NotifyFieldKey[] = [];
 
 // ---- Country-specific versions --------------------------------------------------------------
 // The stage templates (stored per stage) are written for the US process (I-20, SEVIS, DS-160).
