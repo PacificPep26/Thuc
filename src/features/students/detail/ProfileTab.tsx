@@ -210,6 +210,17 @@ export function ProfileTab({ student, onDirtyChange, saveRef }: ProfileTabProps)
     <input {...register(name)} autoComplete="off" className={inputClass} {...props} />
   );
 
+  // Long values (jobs, assets, school lists…) grow the box to fit instead of being cut off; field-sizing needs a
+  // recent Chromium, older browsers just keep a one-line box with its own scrollbar.
+  const long = (name: Parameters<typeof register>[0]) => (
+    <textarea
+      {...register(name)}
+      rows={1}
+      autoComplete="off"
+      className={`${inputClass} max-h-40 min-h-[30px] resize-none overflow-y-auto leading-snug [field-sizing:content]`}
+    />
+  );
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} autoComplete="off" className="flex flex-col gap-3">
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
@@ -228,7 +239,7 @@ export function ProfileTab({ student, onDirtyChange, saveRef }: ProfileTabProps)
             </Field>
             <Field label="Quốc tịch">{text('nationality')}</Field>
             <Field label="Số hộ chiếu">{text('passportNumber')}</Field>
-            <Field label="Địa chỉ" wide>{text('address')}</Field>
+            <Field label="Địa chỉ" wide>{long('address')}</Field>
           </Card>
           <Card title="Liên hệ & tài khoản">
             <Field label="Số điện thoại">{text('phone')}</Field>
@@ -238,11 +249,11 @@ export function ProfileTab({ student, onDirtyChange, saveRef }: ProfileTabProps)
             <Field label="Mật khẩu email công ty">{text('emailPassword', { autoComplete: 'new-password' })}</Field>
           </Card>
           <Card title="Học vấn">
-            <Field label="Trường hiện tại" wide>{text('schoolName')}</Field>
-            <Field label="Bậc học / Lớp">{text('currentGrade')}</Field>
+            <Field label="Trường hiện tại" wide>{long('schoolName')}</Field>
+            <Field label="Bậc học / Lớp">{long('currentGrade')}</Field>
             <Field label="Trình độ cao nhất">{text('highestEducation')}</Field>
             <Field label="GPA">{text('gpa', { type: 'number', step: '0.01' })}</Field>
-            <Field label="Gap year">{text('gapYear')}</Field>
+            <Field label="Gap year">{long('gapYear')}</Field>
             <Field label="Chứng chỉ tiếng Anh">
               <select {...register('englishTest')} className={inputClass}>
                 <option value="">—</option>
@@ -253,7 +264,7 @@ export function ProfileTab({ student, onDirtyChange, saveRef }: ProfileTabProps)
                 <option value="None">Không có</option>
               </select>
             </Field>
-            <Field label="Điểm / trình độ">{text('englishScore')}</Field>
+            <Field label="Điểm / trình độ">{long('englishScore')}</Field>
             <Field label="Ngày thi">{text('englishTestDate', { type: 'date' })}</Field>
           </Card>
         </div>
@@ -261,18 +272,18 @@ export function ProfileTab({ student, onDirtyChange, saveRef }: ProfileTabProps)
         {/* Column 2: family */}
         <div className="flex flex-col gap-3">
           <Card title="Gia đình">
-            <Field label="Họ tên cha">{text('family.fatherName')}</Field>
+            <Field label="Họ tên cha">{long('family.fatherName')}</Field>
             <Field label="SĐT cha">{text('family.fatherPhone')}</Field>
             <Field label="Email cha" wide>{text('family.fatherEmail', { type: 'email' })}</Field>
-            <Field label="Họ tên mẹ">{text('family.motherName')}</Field>
+            <Field label="Họ tên mẹ">{long('family.motherName')}</Field>
             <Field label="SĐT mẹ">{text('family.motherPhone')}</Field>
             <Field label="Email mẹ" wide>{text('family.motherEmail', { type: 'email' })}</Field>
-            <Field label="Người bảo trợ">{text('family.sponsorName')}</Field>
+            <Field label="Người bảo trợ">{long('family.sponsorName')}</Field>
             <Field label="SĐT người bảo trợ">{text('family.sponsorPhone')}</Field>
             <Field label="Email người bảo trợ" wide>{text('family.sponsorEmail', { type: 'email' })}</Field>
-            <Field label="Nghề nghiệp" wide>{text('family.familyOccupation')}</Field>
-            <Field label="Thu nhập">{text('family.familyIncome')}</Field>
-            <Field label="Tài sản">{text('family.familyAssets')}</Field>
+            <Field label="Nghề nghiệp" wide>{long('family.familyOccupation')}</Field>
+            <Field label="Thu nhập">{long('family.familyIncome')}</Field>
+            <Field label="Tài sản">{long('family.familyAssets')}</Field>
           </Card>
           <Card title="Ghi chú">
             <Field label="Định hướng xử lý" wide>
@@ -298,12 +309,12 @@ export function ProfileTab({ student, onDirtyChange, saveRef }: ProfileTabProps)
                 ))}
               </select>
             </Field>
-            <Field label="Mã hợp đồng">{text('service.contractCode')}</Field>
+            <Field label="Mã hợp đồng">{long('service.contractCode')}</Field>
             <Field label="Ngày ký HĐ">{text('service.contractDate', { type: 'date' })}</Field>
             <Field label="Sale">{text('service.salesStaff')}</Field>
             <Field label="Nhân viên XLHS">{text('service.processStaff')}</Field>
-            <Field label="Status">{text('service.processStatus')}</Field>
-            <Field label="Sub-Status" wide>{text('service.processSubStatus')}</Field>
+            <Field label="Status">{long('service.processStatus')}</Field>
+            <Field label="Sub-Status" wide>{long('service.processSubStatus')}</Field>
           </Card>
           <Card title="Hồ sơ du học">
             <Field label="Điểm đến">
@@ -318,14 +329,14 @@ export function ProfileTab({ student, onDirtyChange, saveRef }: ProfileTabProps)
             </Field>
             <Field label="Kỳ nhập học">{text('intakeTerm', { placeholder: 'VD: Mùa thu' })}</Field>
             <Field label="Năm nhập học">{text('intakeYear', { type: 'number' })}</Field>
-            <Field label="Học phí">{text('service.tuition')}</Field>
-            <Field label="Trường" wide>{text('preferredUniversities', { placeholder: 'Cách nhau bởi dấu phẩy' })}</Field>
+            <Field label="Học phí">{long('service.tuition')}</Field>
+            <Field label="Trường" wide>{long('preferredUniversities')}</Field>
             <Field label="Ngành học">{text('preferredMajor')}</Field>
             <Field label="Link ngành">{text('service.majorLink')}</Field>
             <Field label="Ngày cấp visa">{text('visaIssuedDate', { type: 'date' })}</Field>
             <Field label="Thời hạn visa">{text('visaExpiry', { type: 'date' })}</Field>
             <Field label="Link checklist" wide>{text('service.checklistLink')}</Field>
-            <Field label="Invoice & Receipt" wide>{text('service.invoiceFiles')}</Field>
+            <Field label="Invoice & Receipt" wide>{long('service.invoiceFiles')}</Field>
           </Card>
         </div>
       </div>
