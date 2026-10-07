@@ -47,6 +47,7 @@ export const GET = withErrorHandling(async (req) => {
   const pinned: Record<string, unknown> = query.pinned ? { pinned: true } : {};
   const country: Record<string, unknown> = query.destinationCountry ? { destinationCountry: toDbCountry(query.destinationCountry) } : {};
   const stage: Record<string, unknown> = query.stage ? { stage: query.stage } : {};
+  const service: Record<string, unknown> = query.serviceType ? { serviceType: query.serviceType } : {};
 
   const today = vietnamDateKey(new Date());
   const tomorrow = vietnamDateKey(new Date(Date.now() + DAY_MS));
@@ -58,7 +59,7 @@ export const GET = withErrorHandling(async (req) => {
     Todo.distinct('studentId', { done: false, dueDate: tomorrow }) as Promise<string[]>,
   ]);
   const stageKeys = stageRowsRaw.map((s) => s.key);
-  const where = { ...base, ...quick, ...pinned, ...country, ...stage };
+  const where = { ...base, ...quick, ...pinned, ...country, ...stage, ...service };
 
   const sortSpec: Record<string, 1 | -1> =
     query.sort === 'updated'

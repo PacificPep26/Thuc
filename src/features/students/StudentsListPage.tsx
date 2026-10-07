@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { AlertCircle, ArrowUpDown, ListChecks, Plus, Search, Star, X } from 'lucide-react';
 import { studentApi } from './student.api';
+import { SERVICE_LABELS, type ServiceType } from './student.types';
 import { CreateStudentModal } from './CreateStudentModal';
 import { StudentDetailModal, type StudentDetailTabKey } from './detail/StudentDetailModal';
 import { StageSelect } from './StageSelect';
@@ -72,6 +73,7 @@ interface StoredFilters {
   search: string;
   selectedStage: string | null;
   selectedCountry: string | null;
+  selectedService?: ServiceType | null;
   selectedQuickFilter: QuickFilter;
   pinnedOnly: boolean;
   sort: StudentSort;
@@ -136,6 +138,8 @@ function FilterChip({ label, color, onRemove }: { label: string; color?: string;
 export function StudentsListPage() {
   const { filters: storedFilters, update: updateFilters } = useStoredFilters();
   const { search, selectedStage, selectedCountry, selectedQuickFilter, pinnedOnly, sort } = storedFilters;
+  const selectedService = storedFilters.selectedService ?? null;
+  const setSelectedService = (value: ServiceType | null) => updateFilters({ selectedService: value });
   const setSearch = (value: string) => updateFilters({ search: value });
   const setSelectedStage = (value: string | null) => updateFilters({ selectedStage: value });
   const setSelectedCountry = (value: string | null) => updateFilters({ selectedCountry: value });
@@ -158,6 +162,7 @@ export function StudentsListPage() {
     search: debouncedSearch || undefined,
     destinationCountry: selectedCountry ?? undefined,
     stage: selectedStage ?? undefined,
+    serviceType: selectedService ?? undefined,
     quick: selectedQuickFilter === 'all' ? undefined : selectedQuickFilter,
     pinned: pinnedOnly || undefined,
     sort,
@@ -200,7 +205,7 @@ export function StudentsListPage() {
   const countryCounts = new Map(Object.entries(facets?.countries ?? {}));
   const stageCounts = new Map(Object.entries(facets?.stages ?? {}));
 
-  const hasFilter = Boolean(selectedCountry || selectedStage || selectedQuickFilter !== 'all' || pinnedOnly);
+  const hasFilter = Boolean(selectedCountry || selectedStage || selectedService || selectedQuickFilter !== 'all' || pinnedOnly);
 
   const selectedStageData = (stagesData ?? []).find((stage) => stage.key === selectedStage);
   const quickFilterLabels: Record<Exclude<QuickFilter, 'all'>, string> = {
@@ -300,6 +305,18 @@ export function StudentsListPage() {
             </select>
 
             <select
+              aria-label="Lọc theo loại dịch vụ"
+              value={selectedService ?? ''}
+              onChange={(event) => setSelectedService((event.target.value || null) as ServiceType | null)}
+              className="min-w-0 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="">Dịch vụ · Tất cả</option>
+              {Object.entries(SERVICE_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+
+            <select
               aria-label="Lọc theo trạng thái"
               value={selectedQuickFilter}
               onChange={(event) => setSelectedQuickFilter(event.target.value as QuickFilter)}
@@ -348,6 +365,7 @@ export function StudentsListPage() {
           <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
             <span className="text-xs font-medium text-muted-foreground">Đang lọc:</span>
             {selectedCountry && <FilterChip label={COUNTRY_LABELS[selectedCountry] ?? selectedCountry} onRemove={() => setSelectedCountry(null)} />}
+            {selectedService && <FilterChip label={SERVICE_LABELS[selectedService]} onRemove={() => setSelectedService(null)} />}
             {selectedStage && <FilterChip label={selectedStageData?.title ?? selectedStage} color={selectedStageData?.color} onRemove={() => setSelectedStage(null)} />}
             {selectedQuickFilter !== 'all' && <FilterChip label={quickFilterLabels[selectedQuickFilter]} onRemove={() => setSelectedQuickFilter('all')} />}
             {pinnedOnly && <FilterChip label="Đã ghim" onRemove={() => setPinnedOnly(false)} />}
@@ -411,7 +429,14 @@ export function StudentsListPage() {
                       <td className="py-3 pl-3 pr-0">
                         <PinButton studentId={student.id} pinned={student.pinned} />
                       </td>
-                      <td className="px-4 py-3 font-medium text-card-foreground">{student.personal.fullName}</td>
+                      <td className="px-4 py-3 font-medium text-card-foreground">
+                        {student.personal.fullName}
+                        {student.service?.serviceType && (
+                          <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[11px] font-normal text-muted-foreground">
+                            {SERVICE_LABELS[student.service.serviceType as ServiceType]}
+                          </span>
+                        )}
+                      </td>
                       <td className="px-4 py-3 text-muted-foreground">{student.personal.personalEmail ?? student.personal.email}</td>
                       <td className="px-4 py-3 text-muted-foreground">
                         {student.studyAbroad?.destinationCountry

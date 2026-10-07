@@ -17,7 +17,27 @@ const personalSchema = z.object({
   address: z.string().optional(),
 });
 
+export const SERVICE_TYPES = ['du_hoc', 'du_hoc_he', 'onshore', 'gia_han_visa', 'du_lich', 'dinh_cu'] as const;
+const opt = z.string().optional();
+
+const familySchema = z.object({
+  fatherName: opt, fatherPhone: opt, fatherEmail: opt,
+  motherName: opt, motherPhone: opt, motherEmail: opt,
+  sponsorName: opt, sponsorPhone: opt, sponsorEmail: opt,
+  familyOccupation: opt, familyIncome: opt, familyAssets: opt,
+});
+
+const serviceSchema = z.object({
+  serviceType: z.enum(SERVICE_TYPES).optional().or(z.literal('')),
+  contractCode: opt,
+  contractDate: z.coerce.date().optional().or(z.literal('')),
+  salesStaff: opt, processStaff: opt, processStatus: opt, processSubStatus: opt,
+  csNote: opt, majorLink: opt, checklistLink: opt, strategyNote: opt, tuition: opt, invoiceFiles: opt,
+});
+
 const academicSchema = z.object({
+  currentGrade: opt,
+  gapYear: opt,
   highestEducation: z.string().optional(),
   schoolName: z.string().optional(),
   gpa: z.number().optional(),
@@ -50,6 +70,8 @@ export const createStudentSchema = z.object({
   }),
   academic: academicSchema.optional(),
   studyAbroad: studyAbroadSchema.optional(),
+  family: familySchema.optional(),
+  service: serviceSchema.optional(),
   stage: z.string().min(1).optional(),
   notes: z.string().optional(),
 });
@@ -65,6 +87,8 @@ export const updateStudentSchema = z.object({
     .optional(),
   academic: academicSchema.optional(),
   studyAbroad: studyAbroadSchema.optional(),
+  family: familySchema.optional(),
+  service: serviceSchema.optional(),
   stage: z.string().min(1).optional(),
   notes: z.string().optional(),
   pinned: z.boolean().optional(),
@@ -77,6 +101,7 @@ export const listStudentsQuerySchema = z.object({
   search: z.string().optional(),
   stage: z.string().optional(),
   destinationCountry: z.string().optional(),
+  serviceType: z.enum(SERVICE_TYPES).optional(),
   // Quick filters: visa expiring within 30 days, open todos, next promised update due.
   quick: z.enum(['visa', 'todo', 'due', 'pinned']).optional(),
   pinned: z.enum(['true', 'false']).transform((value) => value === 'true').optional(),
@@ -88,6 +113,16 @@ export type UpdateStudentInput = z.infer<typeof updateStudentSchema>;
 
 const countryDbToDto: Record<string, string> = { USA: 'USA', Canada: 'Canada', NewZealand: 'New Zealand', Germany: 'Germany', France: 'France' };
 const countryDtoToDb: Record<string, string> = { USA: 'USA', Canada: 'Canada', 'New Zealand': 'NewZealand', Germany: 'Germany', France: 'France' };
+
+// Empty strings from the form mean "cleared"; for create they just stay unset.
+function cleanGroup(group: Record<string, unknown> | undefined) {
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(group ?? {})) if (v !== undefined && v !== '') out[k] = v;
+  return out;
+}
+
+const FAMILY_KEYS = ['fatherName', 'fatherPhone', 'fatherEmail', 'motherName', 'motherPhone', 'motherEmail', 'sponsorName', 'sponsorPhone', 'sponsorEmail', 'familyOccupation', 'familyIncome', 'familyAssets'] as const;
+const SERVICE_KEYS = ['serviceType', 'contractCode', 'contractDate', 'salesStaff', 'processStaff', 'processStatus', 'processSubStatus', 'csNote', 'majorLink', 'checklistLink', 'strategyNote', 'tuition', 'invoiceFiles'] as const;
 
 export function toCreateData(input: CreateStudentInput) {
   return {
@@ -124,6 +159,10 @@ export function toCreateData(input: CreateStudentInput) {
     studyPermitNumber: input.studyAbroad?.studyPermitNumber,
     dliNumber: input.studyAbroad?.dliNumber,
     nzQualificationCode: input.studyAbroad?.nzQualificationCode,
+    currentGrade: input.academic?.currentGrade,
+    gapYear: input.academic?.gapYear,
+    ...cleanGroup(input.family),
+    ...cleanGroup(input.service),
     stage: input.stage ?? 'lead',
     notes: input.notes,
   };
@@ -174,6 +213,15 @@ export function toUpdateData(input: UpdateStudentInput) {
     if (s.dliNumber !== undefined) data.dliNumber = s.dliNumber;
     if (s.nzQualificationCode !== undefined) data.nzQualificationCode = s.nzQualificationCode;
   }
+  if (a?.currentGrade !== undefined) data.currentGrade = a.currentGrade;
+  if (a?.gapYear !== undefined) data.gapYear = a.gapYear;
+  for (const [group, keys] of [[input.family, FAMILY_KEYS], [input.service, SERVICE_KEYS]] as const) {
+    for (const key of keys) {
+      const value = (group as Record<string, unknown> | undefined)?.[key];
+      if (value === undefined) continue;
+      data[key] = value === '' ? null : value; // saving an emptied field clears it
+    }
+  }
   if (input.stage !== undefined) data.stage = input.stage;
   if (input.notes !== undefined) data.notes = input.notes;
   if (input.pinned !== undefined) data.pinned = input.pinned;
@@ -218,7 +266,11 @@ export function toStudentDTO(student: StudentLike, todos: TodoDoc[] = []) {
       englishTest: s.englishTest,
       englishScore: s.englishScore,
       englishTestDate: s.englishTestDate,
+      currentGrade: s.currentGrade,
+      gapYear: s.gapYear,
     },
+    family: Object.fromEntries(FAMILY_KEYS.map((k) => [k, s[k] ?? undefined])),
+    service: Object.fromEntries(SERVICE_KEYS.map((k) => [k, s[k] ?? undefined])),
     studyAbroad: {
       destinationCountry: s.destinationCountry ? countryDbToDto[s.destinationCountry] : undefined,
       intakeTerm: s.intakeTerm,

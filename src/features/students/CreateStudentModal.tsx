@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { X } from 'lucide-react';
 import { studentApi } from './student.api';
+import { SERVICE_LABELS } from './student.types';
 
 const formSchema = z.object({
   fullName: z.string().min(2, 'Vui lòng nhập họ tên'),
@@ -14,6 +15,7 @@ const formSchema = z.object({
   phone: z.string().optional(),
   destinationCountry: z.enum(['USA', 'Canada', 'New Zealand', 'Germany', 'France']).optional(),
   preferredMajor: z.string().optional(),
+  serviceType: z.enum(['du_hoc', 'du_hoc_he', 'onshore', 'gia_han_visa', 'du_lich', 'dinh_cu']).optional().or(z.literal('')),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -40,6 +42,7 @@ export function CreateStudentModal({ open, onOpenChange }: CreateStudentModalPro
           destinationCountry: values.destinationCountry || undefined,
           preferredMajor: values.preferredMajor || undefined,
         },
+        service: values.serviceType ? { serviceType: values.serviceType } : undefined,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
@@ -99,6 +102,19 @@ export function CreateStudentModal({ open, onOpenChange }: CreateStudentModalPro
                 className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
                 placeholder="+84 900 000 000"
               />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-medium text-card-foreground">Loại dịch vụ</label>
+              <select
+                {...register('serviceType')}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="">Chọn…</option>
+                {Object.entries(SERVICE_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
             </div>
 
             <div>

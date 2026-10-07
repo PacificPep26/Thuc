@@ -41,6 +41,40 @@ const StudentSchema = new Schema(
     dliNumber: { type: String },
     nzQualificationCode: { type: String },
 
+    // service & contract (imported from the contract workbook; money columns are intentionally not stored)
+    serviceType: { type: String, enum: ['du_hoc', 'du_hoc_he', 'onshore', 'gia_han_visa', 'du_lich', 'dinh_cu'] },
+    contractCode: { type: String },
+    contractDate: { type: Date },
+    salesStaff: { type: String },
+    processStaff: { type: String },
+    // Workbook "Status" / "Sub-Status": shown as labels, independent of the stage pipeline.
+    processStatus: { type: String },
+    processSubStatus: { type: String },
+    csNote: { type: String },
+    majorLink: { type: String },
+    checklistLink: { type: String },
+    strategyNote: { type: String },
+    tuition: { type: String },
+    invoiceFiles: { type: String },
+
+    // family
+    fatherName: { type: String },
+    fatherPhone: { type: String },
+    fatherEmail: { type: String },
+    motherName: { type: String },
+    motherPhone: { type: String },
+    motherEmail: { type: String },
+    sponsorName: { type: String },
+    sponsorPhone: { type: String },
+    sponsorEmail: { type: String },
+    familyOccupation: { type: String },
+    familyIncome: { type: String },
+    familyAssets: { type: String },
+
+    // current schooling (extra)
+    currentGrade: { type: String },
+    gapYear: { type: String },
+
     stage: { type: String, default: 'lead' },
     stageOrder: { type: Number, default: 0 },
     notes: { type: String },
@@ -64,6 +98,8 @@ StudentSchema.index({ createdAt: -1 });
 StudentSchema.index({ email: 1 });
 StudentSchema.index({ personalEmail: 1 });
 StudentSchema.index({ caseCode: 1 }, { unique: true, sparse: true });
+StudentSchema.index({ contractCode: 1 });
+StudentSchema.index({ serviceType: 1 });
 StudentSchema.index({ unsubscribeToken: 1 }, { unique: true, sparse: true });
 
 export type StudentDoc = InferSchemaType<typeof StudentSchema> & { _id: mongoose.Types.ObjectId };

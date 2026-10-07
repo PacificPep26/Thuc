@@ -104,7 +104,7 @@ function StudentDetailModalContent({ studentId, initialTab, onOpenChange }: Stud
           // While the unsaved-changes prompt is open, clicks on it must not count as "outside".
           onInteractOutside={(e) => hasPendingAction && e.preventDefault()}
           onEscapeKeyDown={(e) => hasPendingAction && e.preventDefault()}
-          className="fixed left-1/2 top-1/2 z-50 flex max-h-[90vh] w-[92vw] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-lg border border-border bg-card shadow-lg sm:max-h-[85vh] sm:max-w-3xl">
+          className="fixed left-1/2 top-1/2 z-50 flex max-h-[90vh] w-[92vw] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-lg border border-border bg-card shadow-lg sm:max-h-[90vh] sm:max-w-3xl xl:max-w-[1180px]">
           <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6 sm:py-4">
             <Dialog.Title className="truncate text-base font-semibold text-card-foreground sm:text-lg">
               {student?.personal.fullName ?? 'Học sinh'}
