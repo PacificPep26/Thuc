@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Mail, Menu, Users, ListChecks, Plane, Wallet, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { NotificationBell } from './NotificationBell';
 
 const navItems = [
   { to: '/students', label: 'Học sinh', icon: Users },
@@ -35,6 +36,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           >
             <X size={18} />
           </button>
+          <NotificationBell className="absolute left-0 top-0" />
           <Image
             src="/logo.jpg"
             alt="Gián Catholic Global"
@@ -96,7 +98,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             <Menu size={20} />
           </button>
           <Image src="/logo.jpg" alt="Gián Catholic Global" width={36} height={36} className="rounded-full object-cover" />
-          <span className="text-base font-semibold text-card-foreground">Gián Catholic Global</span>
+          <span className="min-w-0 flex-1 truncate text-base font-semibold text-card-foreground">Gián Catholic Global</span>
+          <NotificationBell tone="light" />
         </div>
         <main className="flex-1 overflow-y-auto overflow-x-hidden pb-4">{children}</main>
       </div>
