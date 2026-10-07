@@ -4,29 +4,29 @@
 // table cell collapses the image to 0, which made the contact icons vanish). A client that drops <style>
 // (e.g. a paste into Gmail compose) keeps the desktop sizes, which fit the 660px card.
 
-export const FOOTER_START = '<!--FOOTER-V8-->';
-export const FOOTER_END = '<!--/FOOTER-V8-->';
-const CSS_MARK = '/*FOOTER-V8*/';
+export const FOOTER_START = '<!--FOOTER-V9-->';
+export const FOOTER_END = '<!--/FOOTER-V9-->';
+const CSS_MARK = '/*FOOTER-V9*/';
 
 export const FOOTER_CSS = `${CSS_MARK}
   @media only screen and (max-width:620px) {
-    .ft-head { font-size:10.5px !important; letter-spacing:0.2px !important; }
-    .ft-txt { font-size:9.5px !important; line-height:13px !important; }
-    .ft-sm { font-size:9px !important; }
+    .ft-head { font-size:10px !important; letter-spacing:0.2px !important; }
+    .ft-txt { font-size:9px !important; line-height:13px !important; }
+    .ft-sm { font-size:8.5px !important; }
     .ft-ico { width:11px !important; height:11px !important; }
     .ft-soc { width:20px !important; height:auto !important; }
   }
   @media only screen and (max-width:520px) {
-    .ft-head { font-size:9.5px !important; }
-    .ft-txt { font-size:8.5px !important; line-height:12px !important; }
-    .ft-sm { font-size:8px !important; }
+    .ft-head { font-size:9px !important; white-space:normal !important; }
+    .ft-txt { font-size:8px !important; line-height:12px !important; white-space:normal !important; }
+    .ft-sm { font-size:7.5px !important; }
     .ft-ico { width:9px !important; height:9px !important; }
     .ft-soc { width:16px !important; }
   }
   @media only screen and (max-width:440px) {
-    .ft-head { font-size:8px !important; letter-spacing:0 !important; white-space:normal !important; }
-    .ft-txt { font-size:8px !important; line-height:11px !important; white-space:normal !important; }
-    .ft-sm { font-size:6.5px !important; }
+    .ft-head { font-size:7.5px !important; letter-spacing:0 !important; white-space:normal !important; }
+    .ft-txt { font-size:7.5px !important; line-height:11px !important; white-space:normal !important; }
+    .ft-sm { font-size:6px !important; }
     .ft-ico { width:8px !important; height:8px !important; }
     .ft-soc { width:16px !important; }
   }`;
@@ -40,13 +40,13 @@ const mapUrl = (query: string) => `https://www.google.com/maps/search/?api=1&amp
 function contact(icon: string, w: number, h: number, alt: string, inner: string) {
   return `<tr>
             <td width="13" valign="middle" style="width:13px;padding:3px 6px 3px 0;"><img class="ft-ico" src="/email/${icon}.png" width="${w}" height="${h}" alt="${alt}" style="display:block;width:${w}px;height:${h}px;border:0;"></td>
-            <td class="ft-txt" valign="middle" style="${FONT}font-size:10.5px;line-height:14px;color:${WHITE};padding:3px 0;white-space:nowrap;">${inner}</td>
+            <td class="ft-txt" valign="middle" style="${FONT}font-size:10px;line-height:14px;color:${WHITE};padding:3px 0;white-space:nowrap;">${inner}</td>
           </tr>`;
 }
 
 function office(label: string, address: string, query: string) {
   const href = mapUrl(query);
-  return `<tr><td class="ft-txt" style="${FONT}font-size:10.5px;line-height:14px;color:${WHITE};padding:3px 14px 3px 0;white-space:nowrap;"><a href="${href}" target="_blank" style="color:${ORANGE};font-weight:bold;text-decoration:none;">${label}:</a> <a href="${href}" target="_blank" style="color:${WHITE};text-decoration:none;">${address}</a></td></tr>`;
+  return `<tr><td class="ft-txt" style="${FONT}font-size:10px;line-height:14px;color:${WHITE};padding:3px 14px 3px 0;white-space:nowrap;"><a href="${href}" target="_blank" style="color:${ORANGE};font-weight:bold;text-decoration:none;">${label}:</a> <a href="${href}" target="_blank" style="color:${WHITE};text-decoration:none;">${address}</a></td></tr>`;
 }
 
 const SOCIALS: [string, string, string][] = [
@@ -76,7 +76,7 @@ export const EMAIL_FOOTER = `${FOOTER_START}
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
     <td valign="top" width="66%" style="padding-right:3%;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr><td class="ft-head" style="${FONT}font-size:12px;line-height:15px;font-weight:bold;color:${WHITE};letter-spacing:0.4px;padding:0 0 9px 1px;white-space:nowrap;">CÔNG TY TNHH TƯ VẤN DU HỌC CATHOLIC MTA</td></tr>
+        <tr><td class="ft-head" style="${FONT}font-size:11.5px;line-height:15px;font-weight:bold;color:${WHITE};letter-spacing:0.4px;padding:0 0 9px 1px;white-space:nowrap;">CÔNG TY TNHH TƯ VẤN DU HỌC CATHOLIC MTA</td></tr>
         <tr><td>
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
             <td valign="top" style="padding-right:8px;">
@@ -99,7 +99,7 @@ export const EMAIL_FOOTER = `${FOOTER_START}
     </td>
     <td valign="top" width="34%" align="center" style="padding-left:3%;text-align:center;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr><td align="center" class="ft-head" style="${FONT}font-size:11px;line-height:15px;font-weight:bold;color:${WHITE};letter-spacing:0.4px;padding-bottom:9px;text-align:center;white-space:nowrap;">HÃY KẾT NỐI CÙNG CHÚNG TÔI</td></tr>
+        <tr><td align="center" class="ft-head" style="${FONT}font-size:10.5px;line-height:15px;font-weight:bold;color:${WHITE};letter-spacing:0.4px;padding-bottom:9px;text-align:center;white-space:normal;">HÃY KẾT NỐI CÙNG CHÚNG TÔI</td></tr>
         <tr><td align="center"><table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr>${socialCells}</tr></table></td></tr>
       </table>
     </td>
@@ -108,8 +108,8 @@ export const EMAIL_FOOTER = `${FOOTER_START}
 ${FOOTER_STRIP}
 ${FOOTER_END}`;
 
-const OLD_BLOCK = /<!--FOOTER-V[3-7]-->[\s\S]*?<!--\/FOOTER-V[3-7]-->/;
-const OLD_CSS = new RegExp('/\\*FOOTER-V[3-7]\\*/[\\s\\S]*?\\n {2}\\}(?=\\s*</style>)');
+const OLD_BLOCK = /<!--FOOTER-V[3-8]-->[\s\S]*?<!--\/FOOTER-V[3-8]-->/;
+const OLD_CSS = new RegExp('/\\*FOOTER-V[3-8]\\*/[\\s\\S]*?\\n {2}\\}(?=\\s*</style>)');
 
 // Swaps whichever older footer a template carries (compact one-row letters, the multi-row FOOTER comment layout,
 // or an earlier V3 block) up to and including the bottom colour strip for EMAIL_FOOTER, widens the card to
