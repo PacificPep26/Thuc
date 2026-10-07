@@ -4,16 +4,16 @@
 // table cell collapses the image to 0, which made the contact icons vanish). A client that drops <style>
 // (e.g. a paste into Gmail compose) keeps the desktop sizes, which fit the 660px card.
 
-export const FOOTER_START = '<!--FOOTER-V11-->';
-export const FOOTER_END = '<!--/FOOTER-V11-->';
-const CSS_MARK = '/*FOOTER-V11*/';
+export const FOOTER_START = '<!--FOOTER-V15-->';
+export const FOOTER_END = '<!--/FOOTER-V15-->';
+const CSS_MARK = '/*FOOTER-V15*/';
 
 export const FOOTER_CSS = `${CSS_MARK}
   @media only screen and (max-width:620px) {
     .ft-head { font-size:10px !important; letter-spacing:0.2px !important; }
     .ft-hr { font-size:9px !important; }
     .ft-txt { font-size:9px !important; line-height:13px !important; }
-    .ft-sm { font-size:8.5px !important; }
+    .ft-sm { font-size:6.5px !important; }
     .ft-ico { width:11px !important; height:11px !important; }
     .ft-soc { width:20px !important; height:auto !important; }
   }
@@ -22,7 +22,7 @@ export const FOOTER_CSS = `${CSS_MARK}
     .ft-r { width:170px !important; }
     .ft-hr { font-size:8px !important; }
     .ft-txt { font-size:8px !important; line-height:12px !important; white-space:normal !important; }
-    .ft-sm { font-size:7.5px !important; }
+    .ft-sm { font-size:5.8px !important; }
     .ft-ico { width:9px !important; height:9px !important; }
     .ft-soc { width:16px !important; }
   }
@@ -31,7 +31,7 @@ export const FOOTER_CSS = `${CSS_MARK}
     .ft-r { width:132px !important; padding-left:8px !important; }
     .ft-hr { font-size:6.5px !important; letter-spacing:0 !important; }
     .ft-txt { font-size:7.5px !important; line-height:11px !important; white-space:normal !important; }
-    .ft-sm { font-size:6px !important; }
+    .ft-sm { font-size:4.8px !important; }
     .ft-ico { width:8px !important; height:8px !important; }
     .ft-soc { width:16px !important; }
   }`;
@@ -79,7 +79,7 @@ const FOOTER_STRIP = `<!--FOOTER-STRIP--><tr><td>
 export const EMAIL_FOOTER = `${FOOTER_START}
 <tr><td bgcolor="#002B66" style="background-color:#002B66;padding:16px 12px 13px;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;"><tr>
-    <td valign="top" width="100%" style="padding-right:12px;">
+    <td valign="top" style="padding-right:12px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr><td class="ft-head" style="${FONT}font-size:11.5px;line-height:15px;font-weight:bold;color:${WHITE};letter-spacing:0.4px;padding:0 0 9px 1px;white-space:nowrap;">CÔNG TY TNHH TƯ VẤN DU HỌC CATHOLIC MTA</td></tr>
         <tr><td>
@@ -102,10 +102,11 @@ export const EMAIL_FOOTER = `${FOOTER_START}
         </td></tr>
       </table>
     </td>
-    <td class="ft-r" valign="top" width="190" align="center" style="width:190px;border-left:1px solid #3A5A8C;padding-left:12px;text-align:center;">
+    <td class="ft-r" valign="top" width="205" align="center" style="width:205px;border-left:1px solid #3A5A8C;padding-left:12px;text-align:center;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr><td align="center" class="ft-hr" style="${FONT}font-size:9.5px;line-height:15px;font-weight:bold;color:${WHITE};letter-spacing:0.2px;padding-bottom:9px;text-align:center;white-space:nowrap;">HÃY KẾT NỐI CÙNG CHÚNG TÔI</td></tr>
         <tr><td align="center"><table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr>${socialCells}</tr></table></td></tr>
+        <tr><td align="center" class="ft-sm" style="${FONT}font-size:7px;line-height:11px;color:${WHITE};padding-top:7px;text-align:center;">${SOCIALS.map(([n]) => n).join(' · ')}</td></tr>
       </table>
     </td>
   </tr></table>
