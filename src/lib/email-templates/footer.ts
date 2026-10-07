@@ -4,13 +4,14 @@
 // table cell collapses the image to 0, which made the contact icons vanish). A client that drops <style>
 // (e.g. a paste into Gmail compose) keeps the desktop sizes, which fit the 660px card.
 
-export const FOOTER_START = '<!--FOOTER-V9-->';
-export const FOOTER_END = '<!--/FOOTER-V9-->';
-const CSS_MARK = '/*FOOTER-V9*/';
+export const FOOTER_START = '<!--FOOTER-V11-->';
+export const FOOTER_END = '<!--/FOOTER-V11-->';
+const CSS_MARK = '/*FOOTER-V11*/';
 
 export const FOOTER_CSS = `${CSS_MARK}
   @media only screen and (max-width:620px) {
     .ft-head { font-size:10px !important; letter-spacing:0.2px !important; }
+    .ft-hr { font-size:9px !important; }
     .ft-txt { font-size:9px !important; line-height:13px !important; }
     .ft-sm { font-size:8.5px !important; }
     .ft-ico { width:11px !important; height:11px !important; }
@@ -18,6 +19,8 @@ export const FOOTER_CSS = `${CSS_MARK}
   }
   @media only screen and (max-width:520px) {
     .ft-head { font-size:9px !important; white-space:normal !important; }
+    .ft-r { width:170px !important; }
+    .ft-hr { font-size:8px !important; }
     .ft-txt { font-size:8px !important; line-height:12px !important; white-space:normal !important; }
     .ft-sm { font-size:7.5px !important; }
     .ft-ico { width:9px !important; height:9px !important; }
@@ -25,6 +28,8 @@ export const FOOTER_CSS = `${CSS_MARK}
   }
   @media only screen and (max-width:440px) {
     .ft-head { font-size:7.5px !important; letter-spacing:0 !important; white-space:normal !important; }
+    .ft-r { width:132px !important; padding-left:8px !important; }
+    .ft-hr { font-size:6.5px !important; letter-spacing:0 !important; }
     .ft-txt { font-size:7.5px !important; line-height:11px !important; white-space:normal !important; }
     .ft-sm { font-size:6px !important; }
     .ft-ico { width:8px !important; height:8px !important; }
@@ -46,7 +51,7 @@ function contact(icon: string, w: number, h: number, alt: string, inner: string)
 
 function office(label: string, address: string, query: string) {
   const href = mapUrl(query);
-  return `<tr><td class="ft-txt" style="${FONT}font-size:10px;line-height:14px;color:${WHITE};padding:3px 14px 3px 0;white-space:nowrap;"><a href="${href}" target="_blank" style="color:${ORANGE};font-weight:bold;text-decoration:none;">${label}:</a> <a href="${href}" target="_blank" style="color:${WHITE};text-decoration:none;">${address}</a></td></tr>`;
+  return `<tr><td class="ft-txt" style="${FONT}font-size:10px;line-height:14px;color:${WHITE};padding:3px 14px 3px 0;white-space:normal;"><a href="${href}" target="_blank" style="color:${ORANGE};font-weight:bold;text-decoration:none;">${label}:</a> <a href="${href}" target="_blank" style="color:${WHITE};text-decoration:none;">${address}</a></td></tr>`;
 }
 
 const SOCIALS: [string, string, string][] = [
@@ -73,8 +78,8 @@ const FOOTER_STRIP = `<!--FOOTER-STRIP--><tr><td>
 
 export const EMAIL_FOOTER = `${FOOTER_START}
 <tr><td bgcolor="#002B66" style="background-color:#002B66;padding:16px 12px 13px;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-    <td valign="top" width="66%" style="padding-right:3%;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;"><tr>
+    <td valign="top" width="100%" style="padding-right:12px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr><td class="ft-head" style="${FONT}font-size:11.5px;line-height:15px;font-weight:bold;color:${WHITE};letter-spacing:0.4px;padding:0 0 9px 1px;white-space:nowrap;">CÔNG TY TNHH TƯ VẤN DU HỌC CATHOLIC MTA</td></tr>
         <tr><td>
@@ -97,9 +102,9 @@ export const EMAIL_FOOTER = `${FOOTER_START}
         </td></tr>
       </table>
     </td>
-    <td valign="top" width="34%" align="center" style="padding-left:3%;text-align:center;">
+    <td class="ft-r" valign="top" width="190" align="center" style="width:190px;border-left:1px solid #3A5A8C;padding-left:12px;text-align:center;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr><td align="center" class="ft-head" style="${FONT}font-size:10.5px;line-height:15px;font-weight:bold;color:${WHITE};letter-spacing:0.4px;padding-bottom:9px;text-align:center;white-space:normal;">HÃY KẾT NỐI CÙNG CHÚNG TÔI</td></tr>
+        <tr><td align="center" class="ft-hr" style="${FONT}font-size:9.5px;line-height:15px;font-weight:bold;color:${WHITE};letter-spacing:0.2px;padding-bottom:9px;text-align:center;white-space:nowrap;">HÃY KẾT NỐI CÙNG CHÚNG TÔI</td></tr>
         <tr><td align="center"><table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr>${socialCells}</tr></table></td></tr>
       </table>
     </td>
@@ -108,8 +113,8 @@ export const EMAIL_FOOTER = `${FOOTER_START}
 ${FOOTER_STRIP}
 ${FOOTER_END}`;
 
-const OLD_BLOCK = /<!--FOOTER-V[3-8]-->[\s\S]*?<!--\/FOOTER-V[3-8]-->/;
-const OLD_CSS = new RegExp('/\\*FOOTER-V[3-8]\\*/[\\s\\S]*?\\n {2}\\}(?=\\s*</style>)');
+const OLD_BLOCK = /<!--FOOTER-V\d+-->[\s\S]*?<!--\/FOOTER-V\d+-->/;
+const OLD_CSS = /\/\*FOOTER-V\d+\*\/[\s\S]*?\n {2}\}(?=\s*<\/style>)/;
 
 // Swaps whichever older footer a template carries (compact one-row letters, the multi-row FOOTER comment layout,
 // or an earlier V3 block) up to and including the bottom colour strip for EMAIL_FOOTER, widens the card to
