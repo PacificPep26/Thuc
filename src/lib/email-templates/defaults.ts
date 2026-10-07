@@ -135,6 +135,7 @@ async function runEnsureDefaults() {
     if (present.has(item.seedKey)) continue;
     try {
       let html = await readFile(path.join(process.cwd(), 'email-templates', item.file), 'utf8');
+      html = upgradeFooter(html).html;
       for (const [from, to] of item.replacements) html = html.replaceAll(from, to);
       await EmailTemplate.updateOne(
         { seedKey: item.seedKey },
