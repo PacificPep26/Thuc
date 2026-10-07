@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { EmailTemplate } from '@/models/EmailTemplate';
 import { upgradeFooter } from './footer';
+import { upgradeSignature } from './signature';
 
 const DEFAULTS = [
   {
@@ -105,11 +106,12 @@ async function runEnsureDefaults() {
     await t.save();
   }
 
-  // Roll the shared footer out to stored built-in copies (idempotent: copies that already carry it are skipped).
+  // Roll the shared signature and footer out to stored built-in copies. Both upgrades are idempotent.
   for (const t of await EmailTemplate.find({ seedKey: { $exists: true, $ne: null } })) {
     const upgraded = upgradeFooter(t.html);
-    const resized = shrinkSignatureEmblem(upgraded.html);
-    if (upgraded.changed || resized !== upgraded.html) {
+    const signed = upgradeSignature(upgraded.html);
+    const resized = shrinkSignatureEmblem(signed.html);
+    if (upgraded.changed || signed.changed || resized !== signed.html) {
       t.html = resized;
       await t.save();
     }
@@ -136,6 +138,7 @@ async function runEnsureDefaults() {
     try {
       let html = await readFile(path.join(process.cwd(), 'email-templates', item.file), 'utf8');
       html = upgradeFooter(html).html;
+      html = upgradeSignature(html).html;
       for (const [from, to] of item.replacements) html = html.replaceAll(from, to);
       await EmailTemplate.updateOne(
         { seedKey: item.seedKey },
