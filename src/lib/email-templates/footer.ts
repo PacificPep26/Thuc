@@ -4,9 +4,9 @@
 // table cell collapses the image to 0, which made the contact icons vanish). A client that drops <style>
 // (e.g. a paste into Gmail compose) keeps the desktop sizes, which fit the 660px card.
 
-export const FOOTER_START = '<!--FOOTER-V17-->';
-export const FOOTER_END = '<!--/FOOTER-V17-->';
-const CSS_MARK = '/*FOOTER-V17*/';
+export const FOOTER_START = '<!--FOOTER-V18-->';
+export const FOOTER_END = '<!--/FOOTER-V18-->';
+const CSS_MARK = '/*FOOTER-V18*/';
 
 export const FOOTER_CSS = `${CSS_MARK}
   @media only screen and (max-width:620px) {
@@ -45,13 +45,13 @@ const mapUrl = (query: string) => `https://www.google.com/maps/search/?api=1&amp
 function contact(icon: string, w: number, h: number, alt: string, inner: string) {
   return `<tr>
             <td width="13" valign="middle" style="width:13px;padding:3px 6px 3px 0;"><img class="ft-ico" src="/email/${icon}.png" width="${w}" height="${h}" alt="${alt}" style="display:block;width:${w}px;height:${h}px;border:0;"></td>
-            <td class="ft-txt" valign="middle" style="${FONT}font-size:8px;line-height:13px;color:${WHITE};padding:3px 0;white-space:nowrap;">${inner}</td>
+            <td class="ft-txt" valign="middle" style="${FONT}font-size:8.5px;line-height:13px;color:${WHITE};padding:3px 0;white-space:nowrap;">${inner}</td>
           </tr>`;
 }
 
 function office(label: string, address: string, query: string) {
   const href = mapUrl(query);
-  return `<tr><td class="ft-txt" style="${FONT}font-size:8px;line-height:13px;color:${WHITE};padding:3px 8px 3px 0;white-space:nowrap;"><a href="${href}" target="_blank" style="color:${ORANGE};font-weight:bold;text-decoration:none;">${label}:</a> <a href="${href}" target="_blank" style="color:${WHITE};text-decoration:none;">${address}</a></td></tr>`;
+  return `<tr><td class="ft-txt" style="${FONT}font-size:8.5px;line-height:13px;color:${WHITE};padding:3px 8px 3px 0;white-space:nowrap;"><a href="${href}" target="_blank" style="color:${ORANGE};font-weight:bold;text-decoration:none;">${label}:</a> <a href="${href}" target="_blank" style="color:${WHITE};text-decoration:none;">${address}</a></td></tr>`;
 }
 
 const SOCIALS: [string, string, string][] = [
