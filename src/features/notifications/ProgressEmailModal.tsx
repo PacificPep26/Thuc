@@ -474,23 +474,26 @@ export function ProgressEmailModal({ studentId, stageKey, onClose }: ProgressEma
                   {usesSchool && (
                     <label className="flex flex-col gap-1 text-sm">
                       <span className="font-medium">Trường</span>
-                      <select
-                        value={student?.studyAbroad.preferredUniversities?.[0] ?? ''}
-                        onChange={(e) => changeSchool(e.target.value)}
-                        disabled={schoolMutation.isPending || !schools.length}
+                      {/* Free text so a school can be typed right here; saved to the profile when the box loses focus. */}
+                      <input
+                        key={schools[0] ?? 'empty'}
+                        list="progress-email-schools"
+                        defaultValue={schools[0] ?? ''}
+                        onBlur={(e) => changeSchool(e.target.value.trim())}
+                        onKeyDown={(e) => e.key === 'Enter' && (e.currentTarget as HTMLInputElement).blur()}
+                        disabled={schoolMutation.isPending}
+                        placeholder="Nhập tên trường"
                         className={cn(inputClass, !schools.length && 'ring-2 ring-red-300')}
-                      >
-                        {!schools.length && <option value="">— Chưa có trường nguyện vọng —</option>}
+                      />
+                      <datalist id="progress-email-schools">
                         {schools.map((u) => (
-                          <option key={u} value={u}>
-                            {u}
-                          </option>
+                          <option key={u} value={u} />
                         ))}
-                      </select>
+                      </datalist>
                       <span className="text-xs text-muted-foreground">
                         {schools.length
-                          ? 'Lấy từ trường nguyện vọng trong hồ sơ; chọn trường khác sẽ đưa trường đó lên đầu danh sách.'
-                          : 'Thêm trường nguyện vọng trong tab Hồ sơ của học sinh.'}
+                          ? 'Gõ để đổi trường hoặc chọn trường đã có; trường mới được lưu vào hồ sơ và đưa lên đầu danh sách.'
+                          : 'Gõ tên trường rồi bấm ra ngoài để lưu vào hồ sơ học sinh.'}
                       </span>
                     </label>
                   )}
