@@ -122,7 +122,8 @@ async function runEnsureDefaults() {
   // Also covers the fixed 3-session version ({{ngayBuoi1}}), replaced by the repeatable-rows design.
   const legacyPractice = await EmailTemplate.findOne({
     seedKey: 'practice-schedule',
-    html: { $regex: '\\{\\{(buoi1|ngayBuoi1)\\}\\}' },
+    // The 4-column row layout (calendar-icon cell, width="9%") is replaced by the fluid one as well.
+    html: { $regex: '\\{\\{(buoi1|ngayBuoi1)\\}\\}|<td width="9%"' },
   });
   if (legacyPractice) {
     const html = await readFile(path.join(process.cwd(), 'email-templates', 'thong-bao-lich-luyen-tap-phong-van.html'), 'utf8');

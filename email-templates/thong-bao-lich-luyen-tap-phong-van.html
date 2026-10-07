@@ -83,26 +83,38 @@
     <p style="margin:0 0 14px 0;">Bộ phận Xử lý Hồ sơ xin thông báo lịch chuẩn bị và thực hành phỏng vấn trong tuần này <strong>(từ ngày {{tuNgay}} đến ngày {{denNgay}})</strong> của em <strong style="color:#14305f;">{{tenHocSinh}}</strong> cụ thể như sau:</p>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #dce3eb;border-collapse:separate;border-spacing:0;border-radius:10px;overflow:hidden;margin:0 0 16px 0;">
-      <tr><td colspan="4" bgcolor="#10386f" style="background:#10386f;color:#ffffff;font-size:14px;line-height:22px;font-weight:bold;padding:11px 16px;letter-spacing:.3px;"><img src="/email/ico-calendar.png" alt="" width="19" height="19" style="display:inline-block;border:0;width:19px;height:19px;vertical-align:-4px;">&nbsp;&nbsp; LỊCH THỰC HÀNH PHỎNG VẤN</td></tr>
+      <tr><td colspan="3" bgcolor="#10386f" style="background:#10386f;color:#ffffff;font-size:14px;line-height:22px;font-weight:bold;padding:11px 16px;letter-spacing:.3px;"><img src="/email/ico-calendar.png" alt="" width="19" height="19" style="display:inline-block;border:0;width:19px;height:19px;vertical-align:-4px;">&nbsp;&nbsp; LỊCH THỰC HÀNH PHỎNG VẤN</td></tr>
 <!--ROWS--><tr>
-        <td width="20%" style="{{bd}}padding:10px 10px;text-align:center;"><span style="display:inline-block;background:#fff0d3;border-radius:5px;padding:5px 14px;font-weight:bold;white-space:nowrap;">{{label}}</span></td>
-        <td width="9%" style="{{bd}}border-left:1px solid #eadfcf;padding:10px 5px;text-align:center;"><img src="/email/ico-calendar.png" alt="Lịch" width="20" height="20" style="display:inline-block;border:0;width:20px;height:20px;"></td>
-        <td width="43%" style="{{bd}}padding:8px 6px;"><strong style="color:#13264b;">Ngày {{ngay}}</strong><br>{{thu}}</td>
-        <td width="28%" style="{{bd}}border-left:1px solid #eadfcf;padding:8px 10px;color:#13264b;font-weight:bold;white-space:nowrap;"><img src="/email/ico-clock.png" alt="Giờ" width="20" height="20" style="display:inline-block;border:0;width:20px;height:20px;vertical-align:-5px;">&nbsp;&nbsp;{{gio}}</td>
+        <td width="1%" style="{{bd}}padding:10px 8px 10px 12px;white-space:nowrap;"><span style="display:inline-block;background:#fff0d3;border-radius:5px;padding:5px 12px;font-weight:bold;white-space:nowrap;">{{label}}</span></td>
+        <td style="{{bd}}padding:8px 6px;"><strong style="color:#13264b;white-space:nowrap;">Ngày {{ngay}}</strong><br>{{thu}}</td>
+        <td width="1%" align="right" style="{{bd}}padding:8px 12px 8px 6px;color:#13264b;font-weight:bold;white-space:nowrap;text-align:right;"><img src="/email/ico-clock.png" alt="Giờ" width="20" height="20" style="display:inline-block;border:0;width:20px;height:20px;vertical-align:-5px;">&nbsp;&nbsp;{{gio}}</td>
       </tr><!--/ROWS-->
-      <tr><td colspan="4" style="padding:8px 14px 4px 14px;">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef6ff;border-radius:7px;"><tr>
-          <td class="stack" width="50%" style="padding:11px 14px;"><span style="display:inline-block;background:#16487d;border-radius:50%;line-height:36px;text-align:center;width:36px;height:36px;vertical-align:middle;"><img src="/email/ico-video.png" alt="Hình thức" width="19" height="19" style="display:inline-block;border:0;width:19px;height:19px;vertical-align:-5px;"></span><span style="display:inline-block;vertical-align:middle;padding-left:12px;"><strong style="color:#17305d;">Hình thức</strong><br>{{hinhThuc}}</span></td>
-          <td class="stack stack-sep" width="50%" style="border-left:1px solid #8ab4d1;padding:11px 14px;"><span style="display:inline-block;background:#cce4ff;border-radius:50%;line-height:36px;text-align:center;width:36px;height:36px;vertical-align:middle;"><img src="/email/ico-users.png" alt="Mentor" width="19" height="19" style="display:inline-block;border:0;width:19px;height:19px;vertical-align:-5px;"></span><span style="display:inline-block;vertical-align:middle;padding-left:12px;"><strong style="color:#17305d;">Mentor</strong><br><strong>{{mentor}}</strong></span></td>
-        </tr></table>
+      <tr><td colspan="3" style="padding:8px 14px 4px 14px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef6ff;border-radius:7px;"><tr><td style="font-size:0;line-height:0;padding:2px 0;">
+          <!--[if mso]><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="50%" valign="top"><![endif]-->
+          <div style="display:inline-block;width:100%;max-width:280px;vertical-align:top;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;"><tr>
+              <td width="36" valign="middle" style="padding:10px 0 10px 14px;"><span style="display:inline-block;background:#16487d;border-radius:50%;line-height:36px;text-align:center;width:36px;height:36px;"><img src="/email/ico-video.png" alt="Hình thức" width="19" height="19" style="display:inline-block;border:0;width:19px;height:19px;vertical-align:-5px;"></span></td>
+              <td valign="middle" style="padding:10px 14px 10px 12px;font-size:14px;line-height:21px;color:#222a35;font-family:'Segoe UI',Arial,sans-serif;"><strong style="color:#17305d;">Hình thức</strong><br>{{hinhThuc}}</td>
+            </tr></table>
+          </div>
+          <!--[if mso]></td><td width="50%" valign="top"><![endif]-->
+          <div style="display:inline-block;width:100%;max-width:280px;vertical-align:top;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;"><tr>
+              <td width="36" valign="middle" style="padding:10px 0 10px 14px;"><span style="display:inline-block;background:#cce4ff;border-radius:50%;line-height:36px;text-align:center;width:36px;height:36px;"><img src="/email/ico-users.png" alt="Mentor" width="19" height="19" style="display:inline-block;border:0;width:19px;height:19px;vertical-align:-5px;"></span></td>
+              <td valign="middle" style="padding:10px 14px 10px 12px;font-size:14px;line-height:21px;color:#222a35;font-family:'Segoe UI',Arial,sans-serif;"><strong style="color:#17305d;">Mentor</strong><br><strong>{{mentor}}</strong></td>
+            </tr></table>
+          </div>
+          <!--[if mso]></td></tr></table><![endif]-->
+        </td></tr></table>
       </td></tr>
-      <tr><td colspan="4" style="padding:4px 14px 10px 14px;">
+      <tr><td colspan="3" style="padding:4px 14px 10px 14px;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f9ff;border-radius:7px;"><tr>
           <td width="48" valign="top" style="padding:12px 0 10px 14px;"><span style="display:inline-block;background:#f7aa2b;border-radius:50%;line-height:36px;text-align:center;width:36px;height:36px;"><img src="/email/ico-clipboard.png" alt="Nội dung" width="19" height="19" style="display:inline-block;border:0;width:19px;height:19px;vertical-align:-5px;"></span></td>
           <td style="padding:10px 14px 10px 8px;"><strong style="color:#17305d;">Nội dung</strong><br>{{noiDungLuyenTap}}</td>
         </tr></table>
       </td></tr>
-      <!--MEET--><tr><td colspan="4" align="center" style="padding:2px 14px 12px 14px;">
+      <!--MEET--><tr><td colspan="3" align="center" style="padding:2px 14px 12px 14px;">
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr><td bgcolor="#f39422" style="background-color:#f39422;border-radius:8px;"><a href="{{meetUrl}}" target="_blank" style="display:inline-block;padding:11px 24px;font-family:'Segoe UI',Arial,sans-serif;font-size:14px;line-height:20px;font-weight:bold;color:#ffffff;text-decoration:none;">{{meetLabel}}</a></td></tr></table>
       </td></tr><!--/MEET-->
     </table>
