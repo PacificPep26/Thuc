@@ -58,6 +58,12 @@ const DEFAULTS = [
     replacements: [],
   },
   {
+    seedKey: 'invoice-reissue-pending',
+    file: 'cap-nhat-cho-cap-lai-hoa-don.html',
+    name: 'Cập nhật hồ sơ – chờ cấp lại hóa đơn',
+    replacements: [],
+  },
+  {
     seedKey: 'school-application-submitted',
     file: 'cap-nhat-ho-so-da-nop-truong.html',
     name: 'Cập nhật hồ sơ đã nộp đến trường',
