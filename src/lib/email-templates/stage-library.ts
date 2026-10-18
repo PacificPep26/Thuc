@@ -4,7 +4,9 @@
 // Stage preset → library template (seedKey). Stages not listed keep the built-in letter.
 export const STAGE_LIBRARY_KEY: Record<string, string> = {
   gd1_hop_dong: 'thank-you-catholic-mta',
+  gd2_nop_ho_so: 'school-application-submitted',
   gd3_i20_visa: 'progress-preview',
+  gd4_luyen_pv: 'practice-schedule',
   gd5_lich_pv: 'interview-schedule',
 };
 
@@ -41,16 +43,20 @@ export function dateOf(value?: string) {
 
 // vars = student vars (maHoSo, tenHocSinh, truong, quocGia, …) + staff-entered notifyInfo.
 export function libraryValues(vars: Record<string, string | undefined>): Record<string, string> {
+  const cleanVars = Object.fromEntries(
+    Object.entries(vars).filter(([, v]) => v !== undefined && v !== null)
+  ) as Record<string, string>;
   return {
+    ...cleanVars,
     tenHocSinh: vars.tenHocSinh ?? '',
     tenPhuHuynh: vars.tenPhuHuynh ?? '',
     maHoSo: vars.maHoSo ?? '',
-    tenTruong: vars.truong ?? '',
+    tenTruong: vars.truong ?? vars.tenTruong ?? '',
     quocGia: vars.quocGia ?? '',
-    ngayTiepNhan: dateOf(vars.ngayKyHopDong),
-    ngayCapThu: dateOf(vars.ngayCapI20 || vars.ngayCapThuMoi),
-    ngayPhongVan: dateOf(vars.lichPhongVan),
-    gioPhongVan: timeOfDay(vars.lichPhongVan),
+    ngayTiepNhan: dateOf(vars.ngayKyHopDong) || vars.ngayTiepNhan || '',
+    ngayCapThu: dateOf(vars.ngayCapI20 || vars.ngayCapThuMoi) || vars.ngayCapThu || '',
+    ngayPhongVan: dateOf(vars.lichPhongVan) || vars.ngayPhongVan || '',
+    gioPhongVan: timeOfDay(vars.lichPhongVan) || vars.gioPhongVan || '',
   };
 }
 

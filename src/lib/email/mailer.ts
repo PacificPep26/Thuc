@@ -6,6 +6,7 @@ import { EMAIL_ASSETS } from '@/lib/notifications/render';
 export interface MailInput {
   to: string;
   cc?: string[];
+  bcc?: string[];
   subject: string;
   html: string;
   text: string;
@@ -19,11 +20,19 @@ export interface MailResult {
   testMode: boolean;
 }
 
+function parseEmailList(value?: string): string[] {
+  if (!value) return [];
+  return value
+    .split(/[,;]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 // When MAIL_TEST_RECIPIENT is set every mail goes there instead of the real customer.
 function applyTestMode(input: MailInput): MailInput & { testMode: boolean } {
   const testRecipient = process.env.MAIL_TEST_RECIPIENT?.trim();
   if (!testRecipient) return { ...input, testMode: false };
-  return { ...input, to: testRecipient, cc: [], subject: `[TEST] ${input.subject}`, testMode: true };
+  return { ...input, to: testRecipient, cc: [], bcc: [], subject: `[TEST] ${input.subject}`, testMode: true };
 }
 
 // Library templates reference images as src="/email/<name>.png" (so preview and copy work in the app).
@@ -68,17 +77,27 @@ export async function sendMail(raw: MailInput): Promise<MailResult> {
   const input = applyTestMode({ ...raw, html: resolveAppImages(raw.html) });
   const apiKey = process.env.RESEND_API_KEY?.trim();
 
+  const bccList = input.testMode
+    ? []
+    : input.bcc !== undefined
+      ? input.bcc
+      : parseEmailList(process.env.MAIL_BCC || 'admin@mtacorporation.com');
+
   // No provider configured (local dev): write the mail to disk so it can be opened in a browser.
   if (!apiKey) {
-    const dir = path.join(process.cwd(), '.mail-outbox');
-    await mkdir(dir, { recursive: true });
-    const id = `${Date.now()}-${input.to.replace(/[^a-z0-9]+/gi, '_')}`;
-    const header = `<!-- To: ${input.to} | CC: ${(input.cc ?? []).join(', ')} | Subject: ${input.subject} -->\n`;
-    const localHtml = input.html.replace(/cid:([\w-]+)/g, (_m, name) =>
-      `file:///${path.join(process.cwd(), 'public', 'email', `${name}.png`).replace(/\\/g, '/')}`
-    );
-    await writeFile(path.join(dir, `${id}.html`), header + localHtml, 'utf8');
-    return { providerId: `outbox:${id}`, testMode: input.testMode };
+    try {
+      const dir = path.join(process.cwd(), '.mail-outbox');
+      await mkdir(dir, { recursive: true });
+      const id = `${Date.now()}-${input.to.replace(/[^a-z0-9]+/gi, '_')}`;
+      const header = `<!-- To: ${input.to} | CC: ${(input.cc ?? []).join(', ')} | BCC: ${bccList.join(', ')} | Subject: ${input.subject} -->\n`;
+      const localHtml = input.html.replace(/cid:([\w-]+)/g, (_m, name) =>
+        `file:///${path.join(process.cwd(), 'public', 'email', `${name}.png`).replace(/\\/g, '/')}`
+      );
+      await writeFile(path.join(dir, `${id}.html`), header + localHtml, 'utf8');
+      return { providerId: `outbox:${id}`, testMode: input.testMode };
+    } catch {
+      throw new Error('Hệ thống chưa tìm thấy biến RESEND_API_KEY trên Vercel để gửi mail. Hãy kiểm tra lại biến môi trường.');
+    }
   }
 
   const resend = new Resend(apiKey);
@@ -94,6 +113,7 @@ export async function sendMail(raw: MailInput): Promise<MailResult> {
     from,
     to: input.to,
     cc: input.cc?.length ? input.cc : undefined,
+    bcc: bccList.length ? bccList : undefined,
     subject: input.subject,
     html: inline.html,
     text: input.text,

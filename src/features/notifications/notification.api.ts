@@ -18,9 +18,11 @@ export interface SendNotificationInput {
   caseCode?: string;
   to: string;
   cc: string[];
+  bcc?: string[];
   subject: string;
   body: string;
   notifyInfo: Record<string, string>;
+  templateId?: string;
   templateSubject?: string;
   templateHtml?: string;
 }

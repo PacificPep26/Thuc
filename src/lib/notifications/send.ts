@@ -19,10 +19,12 @@ export interface StudentNotificationInput {
   stageKey: string;
   to: string;
   cc: string[];
+  bcc?: string[];
   subject: string;
   body: string;
   kind?: 'stage' | 'interview_reminder';
   refValue?: string;
+  templateId?: string;
   templateSubject?: string;
   templateHtml?: string;
 }
@@ -75,17 +77,24 @@ export async function sendStudentNotification(student: StudentDocument, input: S
   const appUrl = process.env.APP_URL?.replace(/\/$/, '');
 
   // A stage linked to a library template sends that template, filled with the student's values.
-  const libraryKey = input.kind === 'interview_reminder' ? undefined : STAGE_LIBRARY_KEY[presetKey ?? ''];
-  const library = libraryKey ? await EmailTemplate.findOne({ seedKey: libraryKey }) : null;
+  let library = null;
+  if (input.templateId) {
+    if (input.templateId !== 'stage' && input.templateId !== 'builtin') {
+      library = await EmailTemplate.findById(input.templateId);
+    }
+  } else if (input.kind !== 'interview_reminder') {
+    const libraryKey = STAGE_LIBRARY_KEY[presetKey ?? ''];
+    library = libraryKey ? await EmailTemplate.findOne({ seedKey: libraryKey }) : null;
+  }
 
   let subject: string;
   let body: string;
   let html: string;
   let text: string;
-  if (library) {
+  if (library || input.templateHtml) {
     const values = libraryValues(vars);
-    const librarySubject = input.templateSubject ?? library.subject;
-    const libraryHtml = input.templateHtml ?? library.html;
+    const librarySubject = input.templateSubject ?? library?.subject ?? input.subject;
+    const libraryHtml = input.templateHtml ?? library?.html ?? '';
     const missing = missingLibraryValues([librarySubject, libraryHtml], values);
     if (missing.length) throw new BadRequestError(`Còn thiếu thông tin: ${missing.join(', ')}`);
     subject = fillLibraryText(librarySubject, values);
@@ -120,6 +129,8 @@ export async function sendStudentNotification(student: StudentDocument, input: S
     text = renderEmailText(body);
   }
 
+  const bcc = input.bcc ?? (process.env.MAIL_BCC ? [process.env.MAIL_BCC.trim()] : ['admin@mtacorporation.com']);
+
   const base = {
     studentId: String(student._id),
     stageKey: input.stageKey,
@@ -127,6 +138,7 @@ export async function sendStudentNotification(student: StudentDocument, input: S
     refValue: input.refValue,
     to: input.to,
     cc: input.cc,
+    bcc,
     subject,
     body,
   };
@@ -134,6 +146,7 @@ export async function sendStudentNotification(student: StudentDocument, input: S
     const result = await sendMail({
       to: input.to,
       cc: input.cc,
+      bcc,
       subject,
       html,
       text,

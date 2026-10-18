@@ -10,6 +10,8 @@ import { fillLibraryText } from '@/lib/email-templates/stage-library';
 import { copyEmailHtml } from '@/features/notifications/copyEmail';
 import { composerFor } from '@/lib/email-templates/composers';
 import { ComposerDialog } from './ComposerDialog';
+import { EMAIL_FOOTER, FOOTER_CSS } from '@/lib/email-templates/footer';
+import { EMAIL_SIGNATURE } from '@/lib/email-templates/signature';
 
 const inputClass =
   'w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring';
@@ -43,10 +45,81 @@ const previewFields = [
   { key: 'noiDungBoSung3', label: 'Nội dung cần bổ sung 3', placeholder: 'Thông tin người thân tại Hoa Kỳ...' },
 ] as const;
 
+function createDefaultTemplateHtml(): string {
+  return `<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light only">
+  <title>[Catholic MTA] {{tenHocSinh}}</title>
+  <style>
+    ${FOOTER_CSS}
+  </style>
+</head>
+<body style="margin:0;padding:0;background:#eef2f8;font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:#222a35;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef2f8;">
+    <tr>
+      <td align="center" style="padding:24px 8px;">
+        <table role="presentation" width="660" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:660px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
+          <!-- Top Color Bar -->
+          <tr>
+            <td>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td width="45%" height="5" bgcolor="#1b4f9c" style="background:#1b4f9c;height:5px;"></td>
+                  <td bgcolor="#f39422" style="background:#f39422;height:5px;"></td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Header Logo -->
+          <tr>
+            <td align="center" style="padding:32px 8% 24px;">
+              <img src="/email/logo.png" alt="Catholic MTA" width="280" style="display:block;border:0;width:280px;max-width:100%;height:auto;">
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 8%;">
+              <div style="border-top:1px solid #e3e8f0;"></div>
+            </td>
+          </tr>
+          <!-- Header Title -->
+          <tr>
+            <td align="center" style="padding:24px 35px 20px;">
+              <div style="font-size:11px;line-height:18px;font-weight:bold;letter-spacing:2px;color:#f39422;">—&nbsp;&nbsp; THÔNG BÁO &nbsp;&nbsp;—</div>
+              <div style="padding-top:8px;font-size:24px;line-height:34px;font-weight:800;color:#14305f;">TIÊU ĐỀ THƯ THÔNG BÁO</div>
+            </td>
+          </tr>
+          <!-- Email Content -->
+          <tr>
+            <td style="padding:0 8% 28px;font-size:14px;line-height:23px;color:#222a35;">
+              <p style="margin:0 0 18px;">Kính gửi Quý Phụ huynh và em <strong style="color:#14305f;">{{tenHocSinh}}</strong>,</p>
+              <p style="margin:0 0 18px;text-align:justify;">Công ty TNHH Tư vấn Du học Catholic MTA xin gửi đến Quý Phụ huynh và em <strong>{{tenHocSinh}}</strong> thông tin cập nhật mới nhất...</p>
+              <p style="margin:0 0 18px;text-align:justify;">Nội dung chi tiết thông báo tại đây.</p>
+              <p style="margin:0 0 16px;">Trân trọng,</p>
+              ${EMAIL_SIGNATURE}
+            </td>
+          </tr>
+          <!-- Auto Email Notice -->
+          <tr>
+            <td align="center" style="padding:10px 3% 26px;font-size:11.5px;line-height:22px;">
+              <span style="background:#f6e6b4;color:#14305f;font-weight:bold;font-style:italic;padding:4px 8px;border-radius:4px;">Đây là thư thông báo tự động từ chúng tôi. Quý khách vui lòng không phản hồi trực tiếp thư này.</span>
+            </td>
+          </tr>
+          ${EMAIL_FOOTER}
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
 const blankTemplate: EmailTemplateInput = {
   name: '',
   subject: '[Catholic MTA] ',
-  html: '<!doctype html>\n<html lang="vi">\n<head><meta charset="utf-8"><title>{{tenHocSinh}}</title></head>\n<body>\n  <p>Kính gửi em <strong>{{tenHocSinh}}</strong>,</p>\n  <p>Nội dung email...</p>\n</body>\n</html>',
+  html: createDefaultTemplateHtml(),
 };
 
 // Same filler as the send popup and the server sender (stage-library), so every path renders identically.

@@ -10,6 +10,7 @@ const NotificationLogSchema = new Schema(
     refValue: { type: String },
     to: { type: String, required: true },
     cc: { type: [String], default: [] },
+    bcc: { type: [String], default: [] },
     subject: { type: String, required: true },
     body: { type: String },
     status: {
