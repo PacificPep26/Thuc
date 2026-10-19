@@ -81,15 +81,15 @@ export function TravelerDetailModal({ travelerId, initialTab, onOpenChange }: Tr
           </div>
 
           <div className="flex flex-1 flex-col overflow-hidden sm:flex-row">
-            <nav className="flex shrink-0 gap-1 overflow-x-auto border-b border-border p-2 sm:w-44 sm:flex-col sm:border-b-0 sm:border-r sm:p-3">
+            <nav className="flex shrink-0 gap-1 overflow-x-auto border-b border-border p-1.5 sm:p-3 no-scrollbar sm:w-44 sm:flex-col sm:border-b-0 sm:border-r">
               {TABS.map((tab) => (
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
                   className={cn(
-                    'shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-left text-sm font-medium transition',
+                    'shrink-0 whitespace-nowrap rounded-lg px-3 py-1.5 sm:py-2 text-left text-xs sm:text-sm font-medium transition',
                     activeTab === tab.key
-                      ? 'bg-primary text-primary-foreground'
+                      ? 'bg-primary text-primary-foreground shadow-2xs'
                       : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                   )}
                 >

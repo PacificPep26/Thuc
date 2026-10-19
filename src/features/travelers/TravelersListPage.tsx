@@ -162,15 +162,19 @@ export function TravelersListPage() {
       />
 
       {visaAlerts.length > 0 && (
-        <div className="mb-4 rounded-lg border border-orange-300 bg-orange-50 px-4 py-3 text-sm text-orange-800">
-          <div className="mb-1 flex items-center gap-2 font-medium">
-            <AlertCircle size={16} className="shrink-0" />
-            {visaAlerts.length} hồ sơ sắp/đã hết hạn visa — cần theo dõi:
-          </div>
-          <ul className="flex flex-col gap-0.5 pl-6">
+        <details className="group mb-4 rounded-xl border border-orange-300 bg-orange-50/80 p-2.5 text-xs text-orange-900 dark:bg-orange-950/40 dark:text-orange-200">
+          <summary className="cursor-pointer font-medium flex items-center justify-between list-none">
+            <span className="flex items-center gap-1.5 font-semibold">
+              <AlertCircle size={15} className="text-orange-600 shrink-0" />
+              {visaAlerts.length} hồ sơ sắp/đã hết hạn visa — cần theo dõi
+            </span>
+            <span className="text-[11px] text-orange-700 underline group-open:hidden">Xem danh sách</span>
+            <span className="text-[11px] text-orange-700 underline hidden group-open:inline">Thu gọn</span>
+          </summary>
+          <ul className="mt-2 flex flex-col gap-1 pl-5 list-disc border-t border-orange-200/60 pt-2 dark:border-orange-900/60">
             {visaAlerts.map(({ traveler, days }) => (
               <li key={traveler.id}>
-                <button onClick={() => openTraveler(traveler.id, 'profile')} className="underline-offset-2 hover:underline">
+                <button onClick={() => openTraveler(traveler.id, 'profile')} className="font-semibold underline-offset-2 hover:underline">
                   {traveler.personal.fullName}
                 </button>
                 {' — '}
@@ -178,23 +182,24 @@ export function TravelersListPage() {
               </li>
             ))}
           </ul>
-        </div>
+        </details>
       )}
 
-      <div className="mb-4 flex flex-wrap gap-2">
+      {/* Stage filter pills: smooth horizontal scrolling on mobile */}
+      <div className="mb-4 flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
         <button
           onClick={() => {
             setSelectedStage(null);
             setSelectedQuickFilter('all');
           }}
           className={cn(
-            'rounded-full border px-3 py-1.5 text-sm font-medium transition-colors',
+            'shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
             !selectedStage && selectedQuickFilter === 'all'
               ? 'border-primary bg-primary text-primary-foreground'
               : 'border-border bg-background text-muted-foreground hover:text-foreground'
           )}
         >
-          Tất cả
+          Tất cả ({sortedTravelers.length})
         </button>
 
         <button
@@ -203,35 +208,38 @@ export function TravelersListPage() {
             setSelectedQuickFilter('visa');
           }}
           className={cn(
-            'rounded-full border px-3 py-1.5 text-sm font-medium transition-colors',
+            'shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
             selectedQuickFilter === 'visa' && !selectedStage
               ? 'border-amber-500 bg-amber-500 text-white'
               : 'border-border bg-background text-muted-foreground hover:text-foreground'
           )}
         >
-          Visa gần hết hạn
+          Visa gần hết hạn ({visaAlerts.length})
         </button>
 
-        {(stagesData ?? []).map((stage) => (
-          <button
-            key={stage.id}
-            onClick={() => {
-              setSelectedStage(stage.key);
-              setSelectedQuickFilter('all');
-            }}
-            style={selectedStage === stage.key ? { backgroundColor: stage.color ?? '#d4d4d8' } : undefined}
-            className={cn(
-              'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors',
-              selectedStage === stage.key
-                ? 'border-transparent text-[#2c1810]'
-                : 'border-border bg-background text-muted-foreground hover:text-foreground'
-            )}
-          >
-            <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: stage.color ?? '#d4d4d8' }} />
-            {stage.title}
-            <span className="text-xs opacity-70">{sortedTravelers.filter((x) => x.stage === stage.key).length}</span>
-          </button>
-        ))}
+        {(stagesData ?? []).map((stage) => {
+          const count = sortedTravelers.filter((x) => x.stage === stage.key).length;
+          return (
+            <button
+              key={stage.id}
+              onClick={() => {
+                setSelectedStage(stage.key);
+                setSelectedQuickFilter('all');
+              }}
+              style={selectedStage === stage.key ? { backgroundColor: stage.color ?? '#d4d4d8' } : undefined}
+              className={cn(
+                'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
+                selectedStage === stage.key
+                  ? 'border-transparent text-[#2c1810]'
+                  : 'border-border bg-background text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: stage.color ?? '#d4d4d8' }} />
+              {stage.title}
+              <span className="text-[11px] opacity-70">({count})</span>
+            </button>
+          );
+        })}
       </div>
 
       {isLoading && (
@@ -253,81 +261,115 @@ export function TravelersListPage() {
       )}
 
       {!isLoading && !isError && visibleTravelers.length > 0 && (
-        <div className="overflow-x-auto rounded-lg border border-border bg-card">
-        <table className="w-full min-w-205 text-left text-sm">
-          <thead className="border-b border-border bg-muted/50 text-muted-foreground">
-            <tr>
-              <th className="px-4 py-3 font-medium">Họ tên</th>
-              <th className="px-4 py-3 font-medium">Quan hệ</th>
-              <th className="px-4 py-3 font-medium">Điểm đến</th>
-              <th className="px-4 py-3 font-medium">Thời hạn visa</th>
-              <th className="px-4 py-3 font-medium">Giai đoạn</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading && (
-              <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                  Đang tải danh sách…
-                </td>
-              </tr>
-            )}
-            {isError && (
-              <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-red-500">
-                  Không thể tải danh sách.
-                </td>
-              </tr>
-            )}
-            {!isLoading && !isError && data?.data.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                  Chưa có hồ sơ nào.
-                </td>
-              </tr>
-            )}
+        <>
+          {/* Mobile compact scannable rows */}
+          <div className="space-y-2 md:hidden">
             {visibleTravelers.map((traveler) => (
-              <tr
+              <div
                 key={traveler.id}
                 onClick={() => openTraveler(traveler.id)}
-                className="cursor-pointer border-b border-border last:border-0 hover:bg-muted/40"
+                className="cursor-pointer rounded-xl border border-border bg-card p-3 shadow-2xs hover:border-primary/50 transition-colors"
               >
-                <td className="px-4 py-3 font-medium text-card-foreground">{traveler.personal.fullName}</td>
-                <td className="px-4 py-3 text-muted-foreground">
-                  {traveler.studentId && traveler.studentName ? (
-                    <span>
-                      {traveler.personal.relationToStudent ? `${traveler.personal.relationToStudent} của ` : 'Người thân của '}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setLinkedStudentId(traveler.studentId!);
-                        }}
-                        className="font-medium text-primary underline-offset-2 hover:underline"
-                      >
-                        {traveler.studentName}
-                      </button>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-semibold text-sm text-card-foreground truncate">
+                    {traveler.personal.fullName}
+                  </span>
+                  {traveler.travel?.destinationCountry && (
+                    <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                      {countryLabels[traveler.travel.destinationCountry] ?? traveler.travel.destinationCountry}
                     </span>
-                  ) : (
-                    traveler.personal.relationToStudent ?? '—'
                   )}
-                </td>
-                <td className="px-4 py-3 text-muted-foreground">
-                  {traveler.travel?.destinationCountry
-                    ? countryLabels[traveler.travel.destinationCountry] ?? traveler.travel.destinationCountry
-                    : '—'}
-                </td>
-                <td className="px-4 py-3">
-                  <VisaCountdown visaExpiry={traveler.travel?.visaExpiry} />
-                </td>
-                <td className="px-4 py-3">
+                </div>
+
+                <div className="mt-2 flex items-center justify-between gap-2 text-xs">
+                  <div className="min-w-0 flex-1 truncate text-muted-foreground">
+                    {traveler.studentId && traveler.studentName ? (
+                      <span>
+                        {traveler.personal.relationToStudent ? `${traveler.personal.relationToStudent} của ` : 'Của '}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setLinkedStudentId(traveler.studentId!);
+                          }}
+                          className="font-medium text-primary underline-offset-2 hover:underline"
+                        >
+                          {traveler.studentName}
+                        </button>
+                      </span>
+                    ) : (
+                      traveler.personal.relationToStudent ?? '—'
+                    )}
+                  </div>
+                  <div className="shrink-0">
+                    <VisaCountdown visaExpiry={traveler.travel?.visaExpiry} />
+                  </div>
+                </div>
+
+                <div className="mt-2.5 flex items-center justify-between border-t border-border/60 pt-2 text-xs" onClick={(e) => e.stopPropagation()}>
+                  <span className="text-[11px] text-muted-foreground">Giai đoạn:</span>
                   <StageSelect travelerId={traveler.id} stage={traveler.stage} />
-                </td>
-              </tr>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
-        </div>
+          </div>
+
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto rounded-lg border border-border bg-card">
+            <table className="w-full min-w-[700px] text-left text-sm">
+              <thead className="border-b border-border bg-muted/50 text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-3 font-medium">Họ tên</th>
+                  <th className="px-4 py-3 font-medium">Quan hệ</th>
+                  <th className="px-4 py-3 font-medium">Điểm đến</th>
+                  <th className="px-4 py-3 font-medium">Thời hạn visa</th>
+                  <th className="px-4 py-3 font-medium">Giai đoạn</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visibleTravelers.map((traveler) => (
+                  <tr
+                    key={traveler.id}
+                    onClick={() => openTraveler(traveler.id)}
+                    className="cursor-pointer border-b border-border last:border-0 hover:bg-muted/40"
+                  >
+                    <td className="px-4 py-3 font-medium text-card-foreground">{traveler.personal.fullName}</td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {traveler.studentId && traveler.studentName ? (
+                        <span>
+                          {traveler.personal.relationToStudent ? `${traveler.personal.relationToStudent} của ` : 'Người thân của '}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setLinkedStudentId(traveler.studentId!);
+                            }}
+                            className="font-medium text-primary underline-offset-2 hover:underline"
+                          >
+                            {traveler.studentName}
+                          </button>
+                        </span>
+                      ) : (
+                        traveler.personal.relationToStudent ?? '—'
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {traveler.travel?.destinationCountry
+                        ? countryLabels[traveler.travel.destinationCountry] ?? traveler.travel.destinationCountry
+                        : '—'}
+                    </td>
+                    <td className="px-4 py-3">
+                      <VisaCountdown visaExpiry={traveler.travel?.visaExpiry} />
+                    </td>
+                    <td className="px-4 py-3">
+                      <StageSelect travelerId={traveler.id} stage={traveler.stage} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );

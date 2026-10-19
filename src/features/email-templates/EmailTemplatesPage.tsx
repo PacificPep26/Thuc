@@ -266,7 +266,7 @@ ${clone.outerHTML}`;
         <Dialog.Title className="font-semibold">{template === 'new' ? 'Thêm mẫu email' : 'Chỉnh sửa mẫu email'}</Dialog.Title>
         <Dialog.Close aria-label="Đóng"><X size={19} /></Dialog.Close>
       </div>
-      <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto p-5 lg:grid-cols-2">
+      <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto p-4 sm:p-5 lg:grid-cols-2">
         <div className="flex min-h-0 flex-col gap-4">
           <label className="text-sm font-medium">Tên mẫu
             <input className={`${inputClass} mt-1`} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
@@ -274,17 +274,40 @@ ${clone.outerHTML}`;
           <label className="text-sm font-medium">Tiêu đề email
             <input className={`${inputClass} mt-1`} value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} />
           </label>
-          <label className="flex min-h-[360px] flex-1 flex-col text-sm font-medium">Mã HTML
-            <textarea className={`${inputClass} mt-1 min-h-[360px] flex-1 resize-y font-mono text-xs leading-relaxed`} value={form.html} onChange={(e) => { setForm({ ...form, html: e.target.value }); setSeed((v) => ({ html: e.target.value, rev: v.rev + 1 })); }} />
-          </label>
-          <p className="text-xs text-muted-foreground">Mẹo: bấm thẳng vào chữ trong khung xem trước bên phải để sửa nội dung.</p>
-          <p className="text-xs text-muted-foreground">Có thể dùng biến: {previewFields.map((field) => `{{${field.key}}}`).join(', ')}</p>
-          <button onClick={() => setShowPreview((value) => !value)} className="self-start text-sm font-medium text-primary hover:underline lg:hidden">
-            {showPreview ? 'Ẩn xem trước' : 'Xem trước'}
+
+          <div className="rounded-xl border border-border bg-muted/20 p-3 text-xs text-muted-foreground space-y-1">
+            <p className="font-semibold text-foreground">💡 Chỉnh sửa nội dung trực tiếp</p>
+            <p>Bấm trực tiếp vào chữ trong khung thư bên cạnh (hoặc bấm Xem trước) để sửa văn bản.</p>
+            <p className="pt-1">Biến có thể dùng: {previewFields.map((field) => `{{${field.key}}}`).join(', ')}</p>
+          </div>
+
+          <details className="group rounded-xl border border-border bg-card p-3 text-xs text-muted-foreground transition">
+            <summary className="cursor-pointer font-medium text-foreground hover:text-primary list-none flex items-center justify-between">
+              <span>Chỉnh sửa mã HTML nguồn (Dành cho kỹ thuật)</span>
+              <span className="text-muted-foreground group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <div className="mt-3">
+              <textarea
+                className={`${inputClass} min-h-[200px] w-full resize-y font-mono text-xs leading-relaxed`}
+                value={form.html}
+                onChange={(e) => {
+                  setForm({ ...form, html: e.target.value });
+                  setSeed((v) => ({ html: e.target.value, rev: v.rev + 1 }));
+                }}
+              />
+            </div>
+          </details>
+
+          <button
+            type="button"
+            onClick={() => setShowPreview((value) => !value)}
+            className="self-start text-sm font-semibold text-primary hover:underline lg:hidden"
+          >
+            {showPreview ? 'Ẩn xem trước' : 'Xem trước & sửa trực tiếp'}
           </button>
         </div>
-        <div className={`${showPreview ? 'block' : 'hidden'} min-h-[520px] overflow-hidden rounded-xl border border-border bg-white lg:block`}>
-          <iframe key={seed.rev} ref={frameRef} onLoad={enableInlineEdit} title="Xem trước mẫu email" srcDoc={seed.html} className="h-full min-h-[520px] w-full" />
+        <div className={`${showPreview ? 'block' : 'hidden'} min-h-[460px] overflow-hidden rounded-xl border border-border bg-white shadow-xs lg:block`}>
+          <iframe key={seed.rev} ref={frameRef} onLoad={enableInlineEdit} title="Xem trước mẫu email" srcDoc={seed.html} className="h-full min-h-[460px] w-full" />
         </div>
       </div>
       <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-4">

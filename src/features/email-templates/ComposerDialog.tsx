@@ -81,6 +81,7 @@ export function ComposerDialog({
 function ComposerBody({ template, onNotice }: { template: EmailTemplate; onNotice: (m: string) => void }) {
   const [form, setForm] = useState<PracticeForm>(() => loadDraft(template.seedKey));
   const [view, setView] = useState<'desk' | 'mobile'>('desk');
+  const [mobileTab, setMobileTab] = useState<'form' | 'preview'>('form');
   const [frameH, setFrameH] = useState(900);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const patch = (p: Partial<PracticeForm>) => setForm((f) => ({ ...f, ...p }));
@@ -174,18 +175,40 @@ function ComposerBody({ template, onNotice }: { template: EmailTemplate; onNotic
 
   return (
     <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex max-h-[94vh] w-[96vw] max-w-7xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-[#D6E0EC] bg-white text-[#0A1F4E] shadow-xl">
-      <div className="flex items-center gap-3.5 border-b border-[#D6E0EC] px-6 py-4">
+      <div className="flex items-center gap-3.5 border-b border-[#D6E0EC] px-4 py-3 sm:px-6 sm:py-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/email/emblem.png" alt="Catholic MTA" className="h-11 w-auto rounded-lg border border-[#D6E0EC] bg-white p-1" />
+        <img src="/email/emblem.png" alt="Catholic MTA" className="h-10 w-auto rounded-lg border border-[#D6E0EC] bg-white p-1" />
         <div className="min-w-0 flex-1">
-          <Dialog.Title className="text-lg font-bold leading-tight text-[#002B66]">{template.name}</Dialog.Title>
-          <Dialog.Description className="text-[13px] text-[#56678A]">Điền thông tin, kiểm tra bản xem trước rồi sao chép vào Gmail.</Dialog.Description>
+          <Dialog.Title className="text-base sm:text-lg font-bold leading-tight text-[#002B66]">{template.name}</Dialog.Title>
+          <Dialog.Description className="truncate text-xs sm:text-[13px] text-[#56678A]">Điền thông tin, kiểm tra bản xem trước rồi sao chép vào Gmail.</Dialog.Description>
         </div>
         <Dialog.Close aria-label="Đóng" className="rounded-lg p-1.5 text-[#56678A] hover:bg-[#EBF1F8]"><X size={19} /></Dialog.Close>
       </div>
 
+      {/* Mobile Tab Switcher */}
+      <div className="flex border-b border-[#D6E0EC] bg-[#F2F5F9] p-1 lg:hidden">
+        <button
+          type="button"
+          onClick={() => setMobileTab('form')}
+          className={`flex-1 rounded-lg py-2 text-center text-xs font-bold transition-all ${
+            mobileTab === 'form' ? 'bg-white text-[#002B66] shadow-xs' : 'text-[#56678A]'
+          }`}
+        >
+          1. Điền thông tin form
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileTab('preview')}
+          className={`flex-1 rounded-lg py-2 text-center text-xs font-bold transition-all ${
+            mobileTab === 'preview' ? 'bg-white text-[#002B66] shadow-xs' : 'text-[#56678A]'
+          }`}
+        >
+          2. Xem trước thư
+        </button>
+      </div>
+
       <div className="grid min-h-0 flex-1 overflow-y-auto lg:grid-cols-[400px_1fr] lg:overflow-hidden">
-        <div className="border-b border-[#D6E0EC] px-6 py-5 lg:overflow-y-auto lg:border-b-0 lg:border-r">
+        <div className={`border-b border-[#D6E0EC] px-4 py-4 sm:px-6 sm:py-5 lg:overflow-y-auto lg:border-b-0 lg:border-r ${mobileTab !== 'form' ? 'hidden lg:block' : ''}`}>
           <section className={sectionClass}>
             <h3 className={headingClass}>Học viên</h3>
             <label className={labelClass}>Tên học viên
@@ -277,7 +300,7 @@ function ComposerBody({ template, onNotice }: { template: EmailTemplate; onNotic
           </section>
         </div>
 
-        <div className="min-w-0 bg-[#F2F5F9] px-6 py-5 lg:overflow-y-auto">
+        <div className={`min-w-0 bg-[#F2F5F9] px-4 py-4 sm:px-6 sm:py-5 lg:overflow-y-auto ${mobileTab !== 'preview' ? 'hidden lg:block' : ''}`}>
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h3 className={headingClass}>Bản xem trước</h3>
             <div className="inline-flex overflow-hidden rounded-lg border border-[#B9C8DA] bg-white text-[13px] font-semibold" role="group" aria-label="Kích thước xem trước">
@@ -301,7 +324,7 @@ function ComposerBody({ template, onNotice }: { template: EmailTemplate; onNotic
         </div>
       </div>
 
-      <div className="space-y-2 border-t border-[#D6E0EC] bg-white px-6 py-3.5">
+      <div className="space-y-2 border-t border-[#D6E0EC] bg-white px-4 py-3 sm:px-6 sm:py-3.5">
         {checks.length > 0 ? (
           <div className="max-h-24 overflow-y-auto rounded-lg bg-[#FFF4E2] px-3 py-2 text-xs text-[#8A4B00]">
             <strong>Cần kiểm tra trước khi gửi</strong>
@@ -310,14 +333,16 @@ function ComposerBody({ template, onNotice }: { template: EmailTemplate; onNotic
         ) : (
           <p className="text-xs text-[#1D6E47]">Thông tin đã đầy đủ.</p>
         )}
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="min-w-0 flex-1 truncate text-sm"><span className="text-[#56678A]">Tiêu đề: </span>{subject}</div>
-          <button type="button" onClick={copySubject} className={ghostBtn}>Copy tiêu đề</button>
-          <button type="button" onClick={copyCode} className={ghostBtn}>Sao chép mã HTML</button>
-          <button type="button" onClick={download} className={`${ghostBtn} flex items-center gap-1.5`}><Download size={14} /> Tải .html</button>
-          <button type="button" onClick={copyEmail} className="flex items-center gap-2 rounded-lg bg-[#002B66] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#0B3E86]">
-            <Copy size={15} /> Sao chép email
-          </button>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="min-w-0 flex-1 truncate text-xs sm:text-sm"><span className="text-[#56678A]">Tiêu đề: </span>{subject}</div>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <button type="button" onClick={copySubject} className={ghostBtn}>Copy tiêu đề</button>
+            <button type="button" onClick={copyCode} className={`${ghostBtn} hidden sm:inline-flex`}>Sao chép mã HTML</button>
+            <button type="button" onClick={download} className={`${ghostBtn} hidden sm:inline-flex items-center gap-1.5`}><Download size={14} /> Tải .html</button>
+            <button type="button" onClick={copyEmail} className="flex items-center gap-2 rounded-lg bg-[#002B66] px-3.5 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-bold text-white hover:bg-[#0B3E86]">
+              <Copy size={15} /> Sao chép email
+            </button>
+          </div>
         </div>
       </div>
     </Dialog.Content>

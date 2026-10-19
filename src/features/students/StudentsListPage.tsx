@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { AlertCircle, ArrowUpDown, ListChecks, Plus, Search, Star, X } from 'lucide-react';
+import { AlertCircle, ArrowUpDown, ChevronDown, ChevronUp, Filter, ListChecks, Plus, Search, Star, X } from 'lucide-react';
 import { studentApi } from './student.api';
 import { SERVICE_LABELS, type ServiceType } from './student.types';
 import { CreateStudentModal } from './CreateStudentModal';
@@ -149,6 +149,7 @@ export function StudentsListPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [detailInitialTab, setDetailInitialTab] = useState<StudentDetailTabKey | undefined>(undefined);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const [page, setPage] = useState(1);
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -253,16 +254,101 @@ export function StudentsListPage() {
         onOpenChange={(open) => !open && setSelectedStudentId(null)}
       />
 
+      {/* Quick Overview Stats Strip */}
+      <div className="mb-3 flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
+        <button
+          type="button"
+          onClick={() => clearFilters()}
+          className={cn(
+            'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 font-medium transition-all',
+            !hasFilter
+              ? 'border-primary bg-primary text-primary-foreground shadow-2xs'
+              : 'border-border bg-card text-muted-foreground hover:text-foreground'
+          )}
+        >
+          <span>Tất cả</span>
+          <span className={cn('rounded-full px-1.5 py-0.2 text-[10px] font-bold', !hasFilter ? 'bg-white/20 text-white' : 'bg-muted text-foreground')}>
+            {data?.meta.total ?? 0}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setPinnedOnly(!pinnedOnly)}
+          className={cn(
+            'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 font-medium transition-all',
+            pinnedOnly
+              ? 'border-amber-500 bg-amber-500 text-white shadow-2xs'
+              : 'border-border bg-card text-muted-foreground hover:text-foreground'
+          )}
+        >
+          <Star size={12} fill={pinnedOnly ? 'currentColor' : 'none'} />
+          <span>Đã ghim</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setSelectedQuickFilter(selectedQuickFilter === 'due' ? 'all' : 'due')}
+          className={cn(
+            'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 font-medium transition-all',
+            selectedQuickFilter === 'due'
+              ? 'border-red-500 bg-red-500 text-white shadow-2xs'
+              : 'border-border bg-card text-muted-foreground hover:text-foreground'
+          )}
+        >
+          <span>Đến hạn</span>
+          <span className={cn('rounded-full px-1.5 py-0.2 text-[10px] font-bold', selectedQuickFilter === 'due' ? 'bg-white/20 text-white' : 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300')}>
+            {dueCount}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setSelectedQuickFilter(selectedQuickFilter === 'todo' ? 'all' : 'todo')}
+          className={cn(
+            'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 font-medium transition-all',
+            selectedQuickFilter === 'todo'
+              ? 'border-blue-600 bg-blue-600 text-white shadow-2xs'
+              : 'border-border bg-card text-muted-foreground hover:text-foreground'
+          )}
+        >
+          <span>Cần làm</span>
+        </button>
+
+        {visaAlerts.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setSelectedQuickFilter(selectedQuickFilter === 'visa' ? 'all' : 'visa')}
+            className={cn(
+              'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 font-medium transition-all',
+              selectedQuickFilter === 'visa'
+                ? 'border-orange-500 bg-orange-500 text-white shadow-2xs'
+                : 'border-orange-300 bg-orange-50 text-orange-800 dark:bg-orange-950 dark:text-orange-200'
+            )}
+          >
+            <AlertCircle size={12} />
+            <span>Sắp hết visa</span>
+            <span className={cn('rounded-full px-1.5 py-0.2 text-[10px] font-bold', selectedQuickFilter === 'visa' ? 'bg-white/20 text-white' : 'bg-orange-200 text-orange-900 dark:bg-orange-900 dark:text-orange-100')}>
+              {visaAlerts.length}
+            </span>
+          </button>
+        )}
+      </div>
+
       {visaAlerts.length > 0 && (
-        <div className="mb-4 rounded-lg border border-orange-300 bg-orange-50 px-4 py-3 text-sm text-orange-800">
-          <div className="mb-1 flex items-center gap-2 font-medium">
-            <AlertCircle size={16} className="shrink-0" />
-            {visaAlerts.length} học sinh sắp/đã hết hạn visa — cần gia hạn:
-          </div>
-          <ul className="flex flex-col gap-0.5 pl-6">
+        <details className="group mb-3 rounded-xl border border-orange-300 bg-orange-50/80 p-2.5 text-xs text-orange-900 dark:bg-orange-950/40 dark:text-orange-200">
+          <summary className="cursor-pointer font-medium flex items-center justify-between list-none">
+            <span className="flex items-center gap-1.5 font-semibold">
+              <AlertCircle size={15} className="text-orange-600 shrink-0" />
+              {visaAlerts.length} học sinh sắp/đã hết hạn visa — cần gia hạn
+            </span>
+            <span className="text-[11px] text-orange-700 underline group-open:hidden">Xem danh sách</span>
+            <span className="text-[11px] text-orange-700 underline hidden group-open:inline">Thu gọn</span>
+          </summary>
+          <ul className="mt-2 flex flex-col gap-1 pl-5 list-disc border-t border-orange-200/60 pt-2 dark:border-orange-900/60">
             {visaAlerts.map(({ student, days }) => (
               <li key={student.id}>
-                <button onClick={() => openStudent(student.id, 'profile')} className="underline-offset-2 hover:underline">
+                <button onClick={() => openStudent(student.id, 'profile')} className="font-semibold underline-offset-2 hover:underline">
                   {student.personal.fullName}
                 </button>
                 {' — '}
@@ -270,11 +356,48 @@ export function StudentsListPage() {
               </li>
             ))}
           </ul>
-        </div>
+        </details>
       )}
 
-      <div className="mb-4 rounded-lg border border-border bg-card p-3">
-        <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
+      <div className="mb-4 rounded-xl border border-border bg-card p-3 shadow-2xs">
+        {/* Mobile Filter Toggle & Sort Row */}
+        <div className="flex items-center justify-between gap-2 lg:hidden">
+          <button
+            type="button"
+            onClick={() => setShowMobileFilters(!showMobileFilters)}
+            className={cn(
+              'inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-semibold transition-colors',
+              showMobileFilters || hasFilter
+                ? 'border-primary bg-primary/10 text-primary'
+                : 'border-border bg-background text-muted-foreground'
+            )}
+          >
+            <Filter size={14} />
+            <span>Bộ lọc {hasFilter ? '(đang lọc)' : ''}</span>
+            {showMobileFilters ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          </button>
+
+          <label className="relative">
+            <ArrowUpDown className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={13} />
+            <select
+              value={sort}
+              onChange={(event) => setSort(event.target.value as StudentSort)}
+              className="h-9 rounded-lg border border-border bg-background py-1 pl-8 pr-2 text-xs font-medium outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="priority">Ưu tiên xử lý</option>
+              <option value="updated">Cập nhật gần nhất</option>
+              <option value="name-asc">Tên A–Z</option>
+              <option value="name-desc">Tên Z–A</option>
+              <option value="visa">Visa hết hạn sớm</option>
+            </select>
+          </label>
+        </div>
+
+        {/* Filter Dropdowns */}
+        <div className={cn(
+          "flex-col gap-2 mt-2 pt-2 border-t border-border lg:mt-0 lg:pt-0 lg:border-t-0 lg:flex lg:flex-row lg:items-center",
+          showMobileFilters ? "flex" : "hidden lg:flex"
+        )}>
           <div className="grid flex-1 grid-cols-1 gap-2 sm:grid-cols-3">
             <select
               aria-label="Lọc theo quốc gia"
@@ -329,7 +452,7 @@ export function StudentsListPage() {
             </select>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-2">
             <button
               type="button"
               aria-pressed={pinnedOnly}
@@ -481,60 +604,85 @@ export function StudentsListPage() {
             </table>
           </div>
 
-          <div className="space-y-3 md:hidden">
+          <div className="space-y-2 md:hidden">
             {visibleStudents.map((student) => {
               const urgency = todoUrgency(student.todos ?? []);
+              const days = daysUntil(student.studyAbroad?.visaExpiry);
+              const isUrgentVisa = days !== null && days <= VISA_WARNING_DAYS;
 
               return (
                 <div
                   key={student.id}
                   onClick={() => openStudent(student.id)}
-                  className="cursor-pointer rounded-lg border border-border bg-card p-4 shadow-sm"
+                  className="cursor-pointer rounded-xl border border-border bg-card p-3 shadow-2xs hover:border-primary/50 transition-colors"
                 >
-                  <div className="mb-3 flex items-start justify-between gap-3">
-                    <div>
-                      <div className="flex items-center gap-1 font-semibold text-card-foreground">
+                  {/* Top row: Pin + Name + Country + Urgency */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <div onClick={(e) => e.stopPropagation()} className="shrink-0">
                         <PinButton studentId={student.id} pinned={student.pinned} />
-                        {student.personal.fullName}
                       </div>
-                      <div className="text-xs text-muted-foreground">{student.personal.personalEmail ?? student.personal.email}</div>
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openStudent(student.id, 'notes');
-                      }}
-                      className={cn(
-                        'rounded-md border px-2 py-1 text-xs',
-                        urgency === 'due'
-                          ? 'border-red-300 bg-red-50 text-red-600'
-                          : urgency === 'tomorrow'
-                            ? 'border-amber-300 bg-amber-50 text-amber-700'
-                            : 'border-border bg-background text-muted-foreground'
+                      <span className="font-semibold text-sm text-card-foreground truncate">
+                        {student.personal.fullName}
+                      </span>
+                      {student.studyAbroad?.destinationCountry && (
+                        <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                          {COUNTRY_LABELS[student.studyAbroad.destinationCountry] ?? student.studyAbroad.destinationCountry}
+                        </span>
                       )}
-                    >
-                      {urgency === 'due' ? 'Đến hạn' : urgency === 'tomorrow' ? 'Còn 1 ngày' : urgency === 'open' ? 'Cần làm' : 'Ổn'}
-                    </button>
+                    </div>
+                    {urgency !== 'none' && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openStudent(student.id, 'notes');
+                        }}
+                        className={cn(
+                          'shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium',
+                          urgency === 'due'
+                            ? 'bg-red-500/15 text-red-600 dark:text-red-400'
+                            : urgency === 'tomorrow'
+                              ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                              : 'bg-muted text-muted-foreground'
+                        )}
+                      >
+                        {urgency === 'due' ? 'Đến hạn' : urgency === 'tomorrow' ? 'Còn 1 ngày' : 'Cần làm'}
+                      </button>
+                    )}
                   </div>
 
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-muted-foreground">Điểm đến</span>
-                      <span>{student.studyAbroad?.destinationCountry ? COUNTRY_LABELS[student.studyAbroad.destinationCountry] ?? student.studyAbroad.destinationCountry : '—'}</span>
-                    </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-muted-foreground">Visa</span>
-                      <VisaCountdown visaExpiry={student.studyAbroad?.visaExpiry} />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <span className="text-muted-foreground">Giai đoạn</span>
-                      <div className="flex items-center gap-2">
+                  {/* Bottom row: Stage Select + Visa alert + Quick actions */}
+                  <div className="mt-2.5 flex items-center justify-between gap-2 text-xs">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <div onClick={(e) => e.stopPropagation()} className="min-w-0 max-w-[160px] truncate">
                         <StageSelect
                           studentId={student.id}
                           stage={student.stage}
-                          country={student.studyAbroad?.destinationCountry} className="flex-1" />
-                        <SendEmailButton studentId={student.id} stage={student.stage} country={student.studyAbroad?.destinationCountry} />
+                          country={student.studyAbroad?.destinationCountry}
+                        />
                       </div>
+                      {isUrgentVisa && (
+                        <span className="shrink-0 text-[11px] text-orange-600 font-medium flex items-center gap-0.5">
+                          <AlertCircle size={12} />
+                          {days < 0 ? 'Hết hạn visa' : `${days}d`}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        type="button"
+                        onClick={() => openStudent(student.id, 'notes')}
+                        title="Việc cần làm"
+                        className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                      >
+                        <ListChecks size={16} />
+                      </button>
+                      <SendEmailButton
+                        studentId={student.id}
+                        stage={student.stage}
+                        country={student.studyAbroad?.destinationCountry}
+                      />
                     </div>
                   </div>
                 </div>

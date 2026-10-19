@@ -808,6 +808,7 @@ export function ProgressEmailModal({ studentId, stageKey, onClose }: ProgressEma
   }
 
   const [mountedAt] = useState(() => Date.now());
+  const [mobileTab, setMobileTab] = useState<'info' | 'preview'>('info');
   const recentDuplicate = history?.find(
     (h) =>
       h.stageKey === stageKey && h.status === 'sent' && mountedAt - new Date(h.createdAt).getTime() < 24 * 3600_000,
@@ -819,7 +820,7 @@ export function ProgressEmailModal({ studentId, stageKey, onClose }: ProgressEma
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs" />
         <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex max-h-[95vh] w-[96vw] max-w-7xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-border px-5 py-3.5 sm:px-6">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6 sm:py-3.5">
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -840,10 +841,41 @@ export function ProgressEmailModal({ studentId, stageKey, onClose }: ProgressEma
             </Dialog.Close>
           </div>
 
+          {/* Mobile Tab Switcher */}
+          <div className="flex border-b border-border bg-muted/40 p-1 lg:hidden">
+            <button
+              type="button"
+              onClick={() => setMobileTab('info')}
+              className={cn(
+                'flex-1 rounded-xl py-2 text-center text-xs font-semibold transition-all',
+                mobileTab === 'info'
+                  ? 'bg-card text-foreground shadow-xs'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              1. Thông tin gửi mail
+            </button>
+            <button
+              type="button"
+              onClick={() => setMobileTab('preview')}
+              className={cn(
+                'flex-1 rounded-xl py-2 text-center text-xs font-semibold transition-all',
+                mobileTab === 'preview'
+                  ? 'bg-card text-foreground shadow-xs'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              2. Xem trước / Sửa ({shownSubject ? 'Đã có thư' : 'Trống'})
+            </button>
+          </div>
+
           {/* Body: 2-column layout */}
           <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[380px_1fr]">
             {/* Left sidebar: Inputs & template selector */}
-            <div className="flex flex-col gap-4 overflow-y-auto border-b border-border p-4 sm:p-5 lg:border-b-0 lg:border-r bg-muted/15">
+            <div className={cn(
+              "flex flex-col gap-4 overflow-y-auto border-b border-border p-4 sm:p-5 lg:border-b-0 lg:border-r bg-muted/15",
+              mobileTab !== 'info' && 'hidden lg:flex'
+            )}>
               {!template && <p className="text-sm text-muted-foreground">Đang tải thông tin…</p>}
 
               {template && (
@@ -1003,7 +1035,10 @@ export function ProgressEmailModal({ studentId, stageKey, onClose }: ProgressEma
             </div>
 
             {/* Right panel: Live Preview & Editor */}
-            <div className="flex flex-col min-h-0 flex-1 bg-white overflow-hidden">
+            <div className={cn(
+              "flex flex-col min-h-0 flex-1 bg-white overflow-hidden",
+              mobileTab !== 'preview' && 'hidden lg:flex'
+            )}>
               {/* Preview header bar */}
               <div className="flex items-center justify-between border-b border-border bg-card/60 px-5 py-3">
                 <div className="min-w-0 flex-1 mr-3 truncate text-sm">
