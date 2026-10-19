@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { AlertCircle, ArrowUpDown, ChevronDown, ChevronUp, Filter, ListChecks, Plus, Search, Star, X } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { AlertCircle, ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Filter, ListChecks, Plus, Search, Star, X } from 'lucide-react';
 import { studentApi } from './student.api';
 import { SERVICE_LABELS, type ServiceType } from './student.types';
 import { CreateStudentModal } from './CreateStudentModal';
@@ -17,6 +17,19 @@ import { DailyNotesHeader } from '@/features/daily-notes/DailyNotesHeader';
 
 
 const VISA_WARNING_DAYS = 30;
+
+function getPageNumbers(current: number, total: number): (number | '...')[] {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  if (current <= 4) {
+    return [1, 2, 3, 4, 5, '...', total];
+  }
+  if (current >= total - 3) {
+    return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
+  }
+  return [1, '...', current - 1, current, current + 1, '...', total];
+}
 
 function daysUntil(dateStr?: string): number | null {
   if (!dateStr) return null;
@@ -152,6 +165,27 @@ export function StudentsListPage() {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = Number(localStorage.getItem('student_list_page_size'));
+      if ([30, 50, 100].includes(saved)) return saved;
+    }
+    return 30;
+  });
+  const [paginationMode, setPaginationMode] = useState<'pages' | 'infinite'>('pages');
+
+  function handleSetPaginationMode(mode: 'pages' | 'infinite') {
+    setPaginationMode(mode);
+  }
+
+  function handleSetPageSize(size: number) {
+    setPageSize(size);
+    setPage(1);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('student_list_page_size', String(size));
+    }
+  }
+
   const [debouncedSearch, setDebouncedSearch] = useState('');
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search.trim()), 300);
@@ -168,13 +202,44 @@ export function StudentsListPage() {
     pinned: pinnedOnly || undefined,
     sort,
   };
-  const { data, isLoading, isError, isFetching } = useQuery({
-    queryKey: ['students', { ...filters, page }],
-    queryFn: () => studentApi.list({ ...filters, page, limit: PAGE_SIZE }),
+
+  const { data, isLoading: pagedIsLoading, isError: pagedIsError, isFetching: pagedIsFetching } = useQuery({
+    queryKey: ['students', { ...filters, page, limit: pageSize }],
+    queryFn: () => studentApi.list({ ...filters, page, limit: pageSize }),
     placeholderData: keepPreviousData,
+    enabled: paginationMode === 'pages',
   });
-  const facets = data?.meta.facets;
-  const pages = data?.meta.pages ?? 1;
+
+  const infiniteQuery = useInfiniteQuery({
+    queryKey: ['students', 'infinite', { ...filters, limit: pageSize }],
+    queryFn: ({ pageParam = 1 }) => studentApi.list({ ...filters, page: pageParam, limit: pageSize }),
+    getNextPageParam: (lastPage) => {
+      if (lastPage.meta.page < lastPage.meta.pages) return lastPage.meta.page + 1;
+      return undefined;
+    },
+    initialPageParam: 1,
+    enabled: paginationMode === 'infinite',
+  });
+
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (paginationMode !== 'infinite' || !infiniteQuery.hasNextPage || infiniteQuery.isFetchingNextPage) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0]?.isIntersecting) {
+        infiniteQuery.fetchNextPage();
+      }
+    }, { rootMargin: '300px' });
+    if (sentinelRef.current) observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [paginationMode, infiniteQuery.hasNextPage, infiniteQuery.isFetchingNextPage, infiniteQuery.fetchNextPage]);
+
+  const facets = paginationMode === 'infinite' ? infiniteQuery.data?.pages[0]?.meta.facets : data?.meta.facets;
+  const pages = paginationMode === 'infinite' ? (infiniteQuery.data?.pages[0]?.meta.pages ?? 1) : (data?.meta.pages ?? 1);
+  const totalCount = paginationMode === 'infinite' ? (infiniteQuery.data?.pages[0]?.meta.total ?? 0) : (data?.meta.total ?? 0);
+  const isLoading = paginationMode === 'infinite' ? infiniteQuery.isLoading : pagedIsLoading;
+  const isError = paginationMode === 'infinite' ? infiniteQuery.isError : pagedIsError;
+  const isFetching = paginationMode === 'infinite' ? infiniteQuery.isFetching : pagedIsFetching;
+  const visibleStudents = paginationMode === 'infinite' ? (infiniteQuery.data?.pages.flatMap((p) => p.data) ?? []) : (data?.data ?? []);
 
   // Any filter change goes back to page 1.
   const [filterKey, setFilterKey] = useState('');
@@ -195,13 +260,12 @@ export function StudentsListPage() {
   }
 
   const visaAlerts = useMemo(() => {
-    return (data?.data ?? [])
+    return visibleStudents
       .map((student) => ({ student, days: daysUntil(student.studyAbroad?.visaExpiry) }))
       .filter((entry) => entry.days !== null && entry.days <= VISA_WARNING_DAYS)
       .sort((a, b) => (a.days as number) - (b.days as number));
-  }, [data]);
+  }, [visibleStudents]);
 
-  const visibleStudents = data?.data ?? [];
   const dueCount = facets?.due ?? 0;
   const countryCounts = new Map(Object.entries(facets?.countries ?? {}));
   const stageCounts = new Map(Object.entries(facets?.stages ?? {}));
@@ -517,7 +581,7 @@ export function StudentsListPage() {
         </div>
       )}
 
-      {!isLoading && !isError && !hasFilter && data?.data.length === 0 && (
+      {!isLoading && !isError && !hasFilter && visibleStudents.length === 0 && (
         <div className="rounded-lg border border-border bg-card px-4 py-8 text-center text-muted-foreground">
           Chưa có học sinh nào.
         </div>
@@ -676,28 +740,152 @@ export function StudentsListPage() {
           </div>
         </>
       )}
-      {pages > 1 && (
-        <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
-          <span>
-            {data?.meta.total ?? 0} học sinh · trang {page}/{pages}
-            {isFetching ? ' · đang tải…' : ''}
-          </span>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1}
-              className="rounded-md border border-border px-3 py-1.5 font-medium hover:text-foreground disabled:opacity-40"
-            >
-              Trang trước
-            </button>
-            <button
-              onClick={() => setPage((p) => Math.min(pages, p + 1))}
-              disabled={page >= pages}
-              className="rounded-md border border-border px-3 py-1.5 font-medium hover:text-foreground disabled:opacity-40"
-            >
-              Trang sau
-            </button>
+
+      {/* Sentinel for infinite scroll */}
+      {paginationMode === 'infinite' && (
+        <div ref={sentinelRef} className="py-2 text-center text-xs text-muted-foreground">
+          {infiniteQuery.isFetchingNextPage && (
+            <span className="inline-flex items-center gap-2">
+              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              Đang tải thêm học sinh…
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Bottom pagination & infinite scroll controls */}
+      {!isLoading && !isError && totalCount > 0 && (
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-t border-border pt-3 text-sm text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <span className="font-medium text-foreground">
+              {paginationMode === 'infinite' ? (
+                <>Đã tải {visibleStudents.length} / {totalCount} học sinh</>
+              ) : (
+                <>{totalCount} học sinh · Trang {page}/{pages}</>
+              )}
+              {isFetching ? ' · đang tải…' : ''}
+            </span>
+
+            {/* Mode Switcher */}
+            <div className="inline-flex rounded-lg border border-border p-0.5 bg-muted/40 text-xs">
+              <button
+                type="button"
+                onClick={() => handleSetPaginationMode('pages')}
+                className={cn(
+                  'rounded-md px-2.5 py-1 font-medium transition-colors',
+                  paginationMode === 'pages'
+                    ? 'bg-card text-foreground shadow-2xs font-semibold'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                Số trang
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSetPaginationMode('infinite')}
+                className={cn(
+                  'rounded-md px-2.5 py-1 font-medium transition-colors',
+                  paginationMode === 'infinite'
+                    ? 'bg-card text-foreground shadow-2xs font-semibold'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                Cuộn tải tiếp
+              </button>
+            </div>
+
+            {/* Page Size options (pages mode) */}
+            {paginationMode === 'pages' && (
+              <div className="hidden sm:flex items-center gap-1 text-xs">
+                <span className="text-muted-foreground">Xem:</span>
+                {[30, 50, 100].map((sz) => (
+                  <button
+                    key={sz}
+                    type="button"
+                    onClick={() => handleSetPageSize(sz)}
+                    className={cn(
+                      'rounded-md px-2 py-0.5 font-medium transition-colors',
+                      pageSize === sz
+                        ? 'bg-primary text-primary-foreground font-semibold'
+                        : 'border border-border hover:bg-muted text-foreground'
+                    )}
+                  >
+                    {sz}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
+
+          {/* Numbered Page Buttons */}
+          {paginationMode === 'pages' && pages > 1 && (
+            <div className="flex flex-wrap items-center gap-1 self-center sm:self-auto">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1}
+                className="flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+                title="Trang trước"
+              >
+                <ChevronLeft size={14} />
+                <span className="hidden sm:inline">Trước</span>
+              </button>
+
+              {getPageNumbers(page, pages).map((p, idx) =>
+                p === '...' ? (
+                  <span key={`ellipsis-${idx}`} className="px-1 text-xs text-muted-foreground select-none">
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p as number)}
+                    className={cn(
+                      'min-w-8 h-8 px-2 text-xs font-semibold rounded-lg transition-colors',
+                      page === p
+                        ? 'bg-primary text-primary-foreground shadow-xs'
+                        : 'border border-border text-foreground hover:bg-muted'
+                    )}
+                  >
+                    {p}
+                  </button>
+                )
+              )}
+
+              <button
+                onClick={() => setPage((p) => Math.min(pages, p + 1))}
+                disabled={page >= pages}
+                className="flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+                title="Trang sau"
+              >
+                <span className="hidden sm:inline">Sau</span>
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          )}
+
+          {/* Infinite mode controls */}
+          {paginationMode === 'infinite' && (
+            <div className="flex items-center gap-2 self-center sm:self-auto">
+              {infiniteQuery.hasNextPage && (
+                <button
+                  type="button"
+                  onClick={() => infiniteQuery.fetchNextPage()}
+                  disabled={infiniteQuery.isFetchingNextPage}
+                  className="rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold hover:bg-muted text-foreground transition-colors disabled:opacity-50"
+                >
+                  {infiniteQuery.isFetchingNextPage ? 'Đang tải…' : 'Tải thêm học sinh'}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="rounded-lg border border-border px-2.5 py-1.5 text-xs hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                title="Lên đầu trang"
+              >
+                ↑ Lên đầu
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
