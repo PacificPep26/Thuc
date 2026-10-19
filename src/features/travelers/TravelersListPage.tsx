@@ -262,56 +262,46 @@ export function TravelersListPage() {
 
       {!isLoading && !isError && visibleTravelers.length > 0 && (
         <>
-          {/* Mobile compact scannable rows */}
-          <div className="space-y-2 md:hidden">
-            {visibleTravelers.map((traveler) => (
-              <div
-                key={traveler.id}
-                onClick={() => openTraveler(traveler.id)}
-                className="cursor-pointer rounded-xl border border-border bg-card p-3 shadow-2xs hover:border-primary/50 transition-colors"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-semibold text-sm text-card-foreground truncate">
-                    {traveler.personal.fullName}
-                  </span>
-                  {traveler.travel?.destinationCountry && (
-                    <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-                      {countryLabels[traveler.travel.destinationCountry] ?? traveler.travel.destinationCountry}
-                    </span>
-                  )}
-                </div>
-
-                <div className="mt-2 flex items-center justify-between gap-2 text-xs">
-                  <div className="min-w-0 flex-1 truncate text-muted-foreground">
-                    {traveler.studentId && traveler.studentName ? (
-                      <span>
-                        {traveler.personal.relationToStudent ? `${traveler.personal.relationToStudent} của ` : 'Của '}
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setLinkedStudentId(traveler.studentId!);
-                          }}
-                          className="font-medium text-primary underline-offset-2 hover:underline"
-                        >
+          {/* Mobile compact table (~36px/row) */}
+          <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-2xs md:hidden">
+            <table className="w-full text-left text-xs">
+              <thead className="border-b border-border bg-muted/60 text-muted-foreground font-semibold">
+                <tr>
+                  <th className="py-2 px-2.5">Họ tên</th>
+                  <th className="py-2 px-1 text-center w-14">Nước</th>
+                  <th className="py-2 px-2 text-center w-28">Giai đoạn</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/60">
+                {visibleTravelers.map((traveler) => (
+                  <tr
+                    key={traveler.id}
+                    onClick={() => openTraveler(traveler.id)}
+                    className="cursor-pointer hover:bg-muted/40 transition-colors h-9"
+                  >
+                    <td className="py-1 px-2.5 font-medium text-card-foreground">
+                      <div className="truncate max-w-[150px]">{traveler.personal.fullName}</div>
+                      {traveler.studentName && (
+                        <div className="text-[10px] text-muted-foreground truncate max-w-[150px]">
+                          {traveler.personal.relationToStudent ? `${traveler.personal.relationToStudent} của ` : 'Của '}
                           {traveler.studentName}
-                        </button>
-                      </span>
-                    ) : (
-                      traveler.personal.relationToStudent ?? '—'
-                    )}
-                  </div>
-                  <div className="shrink-0">
-                    <VisaCountdown visaExpiry={traveler.travel?.visaExpiry} />
-                  </div>
-                </div>
-
-                <div className="mt-2.5 flex items-center justify-between border-t border-border/60 pt-2 text-xs" onClick={(e) => e.stopPropagation()}>
-                  <span className="text-[11px] text-muted-foreground">Giai đoạn:</span>
-                  <StageSelect travelerId={traveler.id} stage={traveler.stage} />
-                </div>
-              </div>
-            ))}
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-1 px-1 text-center whitespace-nowrap text-muted-foreground text-[11px]">
+                      {traveler.travel?.destinationCountry
+                        ? countryLabels[traveler.travel.destinationCountry] ?? traveler.travel.destinationCountry
+                        : '—'}
+                    </td>
+                    <td className="py-1 px-2 text-center" onClick={(e) => e.stopPropagation()}>
+                      <div className="max-w-[125px] mx-auto truncate">
+                        <StageSelect travelerId={traveler.id} stage={traveler.stage} />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
           {/* Desktop Table */}

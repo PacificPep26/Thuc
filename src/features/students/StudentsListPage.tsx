@@ -604,90 +604,75 @@ export function StudentsListPage() {
             </table>
           </div>
 
-          <div className="space-y-2 md:hidden">
-            {visibleStudents.map((student) => {
-              const urgency = todoUrgency(student.todos ?? []);
-              const days = daysUntil(student.studyAbroad?.visaExpiry);
-              const isUrgentVisa = days !== null && days <= VISA_WARNING_DAYS;
+          {/* Mobile Compact Table (1 line per student ~36px) */}
+          <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-2xs md:hidden">
+            <table className="w-full text-left text-xs">
+              <thead className="border-b border-border bg-muted/60 text-muted-foreground font-semibold">
+                <tr>
+                  <th className="py-2 pl-2 pr-1 w-7" aria-label="Ghim" />
+                  <th className="py-2 px-2">Họ tên</th>
+                  <th className="py-2 px-1 text-center w-14">Nước</th>
+                  <th className="py-2 px-2 text-center w-28">Giai đoạn</th>
+                  <th className="py-2 pr-2 pl-1 text-right w-9" aria-label="Mail" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/60">
+                {visibleStudents.map((student) => {
+                  const urgency = todoUrgency(student.todos ?? []);
+                  const days = daysUntil(student.studyAbroad?.visaExpiry);
+                  const isUrgentVisa = days !== null && days <= VISA_WARNING_DAYS;
 
-              return (
-                <div
-                  key={student.id}
-                  onClick={() => openStudent(student.id)}
-                  className="cursor-pointer rounded-xl border border-border bg-card p-3 shadow-2xs hover:border-primary/50 transition-colors"
-                >
-                  {/* Top row: Pin + Name + Country + Urgency */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <div onClick={(e) => e.stopPropagation()} className="shrink-0">
+                  return (
+                    <tr
+                      key={student.id}
+                      onClick={() => openStudent(student.id)}
+                      className="cursor-pointer hover:bg-muted/40 transition-colors h-9"
+                    >
+                      <td className="py-1 pl-2 pr-1 w-7" onClick={(e) => e.stopPropagation()}>
                         <PinButton studentId={student.id} pinned={student.pinned} />
-                      </div>
-                      <span className="font-semibold text-sm text-card-foreground truncate">
-                        {student.personal.fullName}
-                      </span>
-                      {student.studyAbroad?.destinationCountry && (
-                        <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-                          {COUNTRY_LABELS[student.studyAbroad.destinationCountry] ?? student.studyAbroad.destinationCountry}
-                        </span>
-                      )}
-                    </div>
-                    {urgency !== 'none' && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openStudent(student.id, 'notes');
-                        }}
-                        className={cn(
-                          'shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium',
-                          urgency === 'due'
-                            ? 'bg-red-500/15 text-red-600 dark:text-red-400'
-                            : urgency === 'tomorrow'
-                              ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
-                              : 'bg-muted text-muted-foreground'
-                        )}
-                      >
-                        {urgency === 'due' ? 'Đến hạn' : urgency === 'tomorrow' ? 'Còn 1 ngày' : 'Cần làm'}
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Bottom row: Stage Select + Visa alert + Quick actions */}
-                  <div className="mt-2.5 flex items-center justify-between gap-2 text-xs">
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <div onClick={(e) => e.stopPropagation()} className="min-w-0 max-w-[160px] truncate">
-                        <StageSelect
+                      </td>
+                      <td className="py-1 px-2 font-medium text-card-foreground">
+                        <div className="flex items-center gap-1 min-w-0 max-w-[130px] sm:max-w-none">
+                          <span className="truncate">{student.personal.fullName}</span>
+                          {urgency === 'due' && (
+                            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" title="Đến hạn" />
+                          )}
+                          {urgency === 'tomorrow' && (
+                            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" title="Còn 1 ngày" />
+                          )}
+                          {isUrgentVisa && (
+                            <span className="text-[10px] text-orange-600 font-bold shrink-0" title="Sắp hết hạn visa">!</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-1 px-1 text-center whitespace-nowrap text-muted-foreground text-[11px]">
+                        {student.studyAbroad?.destinationCountry
+                          ? COUNTRY_LABELS[student.studyAbroad.destinationCountry] ?? student.studyAbroad.destinationCountry
+                          : '—'}
+                      </td>
+                      <td className="py-1 px-2 text-center" onClick={(e) => e.stopPropagation()}>
+                        <div className="max-w-[125px] mx-auto truncate">
+                          <StageSelect
+                            studentId={student.id}
+                            stage={student.stage}
+                            country={student.studyAbroad?.destinationCountry}
+                            className="text-[10px] px-2 py-0.5"
+                          />
+                        </div>
+                      </td>
+                      <td className="py-1 pr-2 pl-1 text-right shrink-0" onClick={(e) => e.stopPropagation()}>
+                        <SendEmailButton
                           studentId={student.id}
                           stage={student.stage}
                           country={student.studyAbroad?.destinationCountry}
+                          className="p-1"
                         />
-                      </div>
-                      {isUrgentVisa && (
-                        <span className="shrink-0 text-[11px] text-orange-600 font-medium flex items-center gap-0.5">
-                          <AlertCircle size={12} />
-                          {days < 0 ? 'Hết hạn visa' : `${days}d`}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        type="button"
-                        onClick={() => openStudent(student.id, 'notes')}
-                        title="Việc cần làm"
-                        className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-                      >
-                        <ListChecks size={16} />
-                      </button>
-                      <SendEmailButton
-                        studentId={student.id}
-                        stage={student.stage}
-                        country={student.studyAbroad?.destinationCountry}
-                      />
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </>
       )}
