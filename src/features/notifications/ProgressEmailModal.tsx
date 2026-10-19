@@ -166,14 +166,13 @@ function VisualEmailEditor({ initialHtml, onChange }: { initialHtml: string; onC
             </button>
           ),
         )}
-        <span className="text-xs text-muted-foreground ml-2">Bấm thẳng vào nội dung thư bên dưới để gõ sửa</span>
       </div>
       <iframe
         ref={frame}
         title="Sửa nội dung mail"
         srcDoc={initialHtml}
         onLoad={setup}
-        className="flex-1 min-h-[500px] w-full rounded-xl border border-border bg-white"
+        className="flex-1 min-h-[360px] w-full rounded-xl border border-border bg-white"
       />
     </div>
   );
@@ -853,7 +852,7 @@ export function ProgressEmailModal({ studentId, stageKey, onClose }: ProgressEma
                   : 'text-muted-foreground hover:text-foreground'
               )}
             >
-              1. Thông tin gửi mail
+              Thông tin
             </button>
             <button
               type="button"
@@ -865,7 +864,7 @@ export function ProgressEmailModal({ studentId, stageKey, onClose }: ProgressEma
                   : 'text-muted-foreground hover:text-foreground'
               )}
             >
-              2. Xem trước / Sửa ({shownSubject ? 'Đã có thư' : 'Trống'})
+              Xem trước thư
             </button>
           </div>
 
@@ -926,9 +925,6 @@ export function ProgressEmailModal({ studentId, stageKey, onClose }: ProgressEma
                       selectedKey={selectedTemplateKey}
                       onSelect={handleSelectTemplate}
                     />
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">
-                      Bấm vào để tìm kiếm theo tên hoặc tiêu đề mẫu phù hợp nhất.
-                    </p>
                   </div>
 
                   {/* Core Recipient & Case Details */}
@@ -1026,10 +1022,6 @@ export function ProgressEmailModal({ studentId, stageKey, onClose }: ProgressEma
                       </label>
                     ))}
                   </div>
-
-                  <p className="mt-auto pt-2 text-[11px] text-muted-foreground leading-normal">
-                    Biến chưa điền sẽ hiển thị dạng <code>{'{{tenBien}}'}</code> để dễ kiểm tra trên bản xem trước.
-                  </p>
                 </>
               )}
             </div>
@@ -1063,12 +1055,12 @@ export function ProgressEmailModal({ studentId, stageKey, onClose }: ProgressEma
                     >
                       {syncSuccess ? <Check size={13} className="text-green-600" /> : <Save size={13} />}
                       {saveToLibraryMutation.isPending || saveToStageMutation.isPending
-                        ? 'Đang lưu đồng bộ...'
+                        ? 'Đang lưu...'
                         : syncSuccess
-                        ? 'Đã đồng bộ mẫu!'
+                        ? 'Đã đồng bộ!'
                         : isLibrary
-                        ? 'Lưu & đồng bộ vào Mẫu email'
-                        : 'Lưu làm mẫu mặc định'}
+                        ? 'Lưu & đồng bộ'
+                        : 'Lưu mẫu mặc định'}
                     </button>
                   )}
                   {isLibrary && (libSubjectEdit !== null || libHtmlEdit !== null) && (
@@ -1098,10 +1090,10 @@ export function ProgressEmailModal({ studentId, stageKey, onClose }: ProgressEma
               </div>
 
               {/* Preview or Editor Content */}
-              <div className="flex-1 min-h-0 overflow-y-auto">
+              <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
                 {editing ? (
                   isLibrary ? (
-                    <div className="flex flex-col gap-4 p-5 h-full">
+                    <div className="flex flex-col gap-4 p-5 h-full overflow-y-auto">
                       <label className="flex flex-col gap-1.5 text-xs font-semibold">
                         <span>Tiêu đề email</span>
                         <input
@@ -1113,13 +1105,10 @@ export function ProgressEmailModal({ studentId, stageKey, onClose }: ProgressEma
                       <div className="flex flex-1 flex-col gap-1.5 text-xs font-semibold min-h-0">
                         <span>Nội dung thư</span>
                         <VisualEmailEditor key={editorSeed} initialHtml={editorSeed} onChange={setLibHtmlEdit} />
-                        <span className="text-[11px] font-normal text-muted-foreground">
-                          Bấm trực tiếp vào chữ trong thư để sửa. Nếu muốn cập nhật vào kho mẫu gốc để các lần gửi sau cũng dùng, hãy bấm nút <strong>&quot;Lưu &amp; đồng bộ vào Mẫu email&quot;</strong> ở góc trên bên phải.
-                        </span>
                       </div>
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-4 p-5 h-full">
+                    <div className="flex flex-col gap-4 p-5 h-full overflow-y-auto">
                       <label className="flex flex-col gap-1.5 text-xs font-semibold">
                         <span>Tiêu đề email</span>
                         <input value={subject} onChange={(e) => setSubject(e.target.value)} className={inputClass} />
@@ -1132,9 +1121,6 @@ export function ProgressEmailModal({ studentId, stageKey, onClose }: ProgressEma
                           rows={16}
                           className={cn(inputClass, 'flex-1 font-mono text-xs leading-relaxed resize-y')}
                         />
-                        <span className="text-[11px] font-normal text-muted-foreground">
-                          Dùng định dạng Markdown: **chữ đậm**, &quot;- &quot; cho gạch đầu dòng.
-                        </span>
                       </label>
                     </div>
                   )
@@ -1143,7 +1129,7 @@ export function ProgressEmailModal({ studentId, stageKey, onClose }: ProgressEma
                     title="Xem trước mail"
                     sandbox="allow-popups allow-same-origin"
                     srcDoc={previewHtml}
-                    className="h-full min-h-[560px] w-full border-0 bg-white"
+                    className="h-full w-full flex-1 border-0 bg-white"
                   />
                 )}
               </div>

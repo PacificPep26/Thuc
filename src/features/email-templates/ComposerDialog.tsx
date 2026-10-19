@@ -180,7 +180,6 @@ function ComposerBody({ template, onNotice }: { template: EmailTemplate; onNotic
         <img src="/email/emblem.png" alt="Catholic MTA" className="h-10 w-auto rounded-lg border border-[#D6E0EC] bg-white p-1" />
         <div className="min-w-0 flex-1">
           <Dialog.Title className="text-base sm:text-lg font-bold leading-tight text-[#002B66]">{template.name}</Dialog.Title>
-          <Dialog.Description className="truncate text-xs sm:text-[13px] text-[#56678A]">Điền thông tin, kiểm tra bản xem trước rồi sao chép vào Gmail.</Dialog.Description>
         </div>
         <Dialog.Close aria-label="Đóng" className="rounded-lg p-1.5 text-[#56678A] hover:bg-[#EBF1F8]"><X size={19} /></Dialog.Close>
       </div>
@@ -194,7 +193,7 @@ function ComposerBody({ template, onNotice }: { template: EmailTemplate; onNotic
             mobileTab === 'form' ? 'bg-white text-[#002B66] shadow-xs' : 'text-[#56678A]'
           }`}
         >
-          1. Điền thông tin form
+          Thông tin
         </button>
         <button
           type="button"
@@ -203,7 +202,7 @@ function ComposerBody({ template, onNotice }: { template: EmailTemplate; onNotic
             mobileTab === 'preview' ? 'bg-white text-[#002B66] shadow-xs' : 'text-[#56678A]'
           }`}
         >
-          2. Xem trước thư
+          Xem trước thư
         </button>
       </div>
 
@@ -244,10 +243,9 @@ function ComposerBody({ template, onNotice }: { template: EmailTemplate; onNotic
               <Plus size={15} /> Thêm buổi
             </button>
             {outOfOrder && (
-              <p className={hintClass}>
-                Thư sẽ xếp các buổi theo thứ tự ngày.{' '}
-                <button type="button" onClick={sortSessions} className={linkClass}>Sắp xếp lại danh sách</button>
-              </p>
+              <div className="pt-1">
+                <button type="button" onClick={sortSessions} className={linkClass}>Sắp xếp các buổi theo ngày</button>
+              </div>
             )}
 
             <div className="pt-1">
@@ -256,15 +254,11 @@ function ComposerBody({ template, onNotice }: { template: EmailTemplate; onNotic
                 <input type="date" className={inputClass} aria-label="Từ ngày" value={range.from} onChange={(e) => patch({ from: e.target.value, to: range.to, rangeManual: true })} />
                 <input type="date" className={inputClass} aria-label="Đến ngày" value={range.to} onChange={(e) => patch({ to: e.target.value, from: range.from, rangeManual: true })} />
               </div>
-              <p className={`${hintClass} mt-1`}>
-                {form.rangeManual ? (
-                  <>Bạn đã tự chọn. <button type="button" className={linkClass} onClick={() => patch({ rangeManual: false })}>Tính lại theo lịch</button></>
-                ) : autoRange(form.sessions) ? (
-                  'Tự tính theo lịch (thứ Hai đến thứ Bảy của tuần có buổi học).'
-                ) : (
-                  'Sẽ tự tính khi có ngày buổi học.'
-                )}
-              </p>
+              {form.rangeManual && (
+                <div className="mt-1">
+                  <button type="button" className={linkClass} onClick={() => patch({ rangeManual: false })}>Tính lại theo lịch</button>
+                </div>
+              )}
             </div>
           </section>
 
@@ -280,7 +274,6 @@ function ComposerBody({ template, onNotice }: { template: EmailTemplate; onNotic
             </div>
             <label className={labelClass}>Link phòng học (không bắt buộc)
               <input type="url" inputMode="url" className={`${inputClass} mt-1`} value={form.meet} placeholder="https://meet.google.com/..." onChange={(e) => patch({ meet: e.target.value })} />
-              <span className={`${hintClass} mt-1 block`}>Có link thì email hiện thêm nút để học viên bấm vào phòng.</span>
             </label>
             <label className={labelClass}>Nội dung
               <textarea rows={3} className={`${inputClass} mt-1 resize-y`} value={form.content} onChange={(e) => patch({ content: e.target.value })} />
@@ -291,34 +284,34 @@ function ComposerBody({ template, onNotice }: { template: EmailTemplate; onNotic
             <h3 className={headingClass}>Gửi email</h3>
             <label className={labelClass}>Tiêu đề email
               <input className={`${inputClass} mt-1`} value={subject} onChange={(e) => patch({ subject: e.target.value, subjectManual: true })} />
-              <span className={`${hintClass} mt-1 block`}>
-                {form.subjectManual ? (
-                  <>Đang dùng tiêu đề bạn tự sửa. <button type="button" className={linkClass} onClick={() => patch({ subjectManual: false })}>Tạo lại tự động</button></>
-                ) : 'Tự tạo theo tên và ngày, có thể sửa.'}
-              </span>
+              {form.subjectManual && (
+                <div className="mt-1">
+                  <button type="button" className={linkClass} onClick={() => patch({ subjectManual: false })}>Tạo lại tiêu đề tự động</button>
+                </div>
+              )}
             </label>
           </section>
         </div>
 
-        <div className={`min-w-0 bg-[#F2F5F9] px-4 py-4 sm:px-6 sm:py-5 lg:overflow-y-auto ${mobileTab !== 'preview' ? 'hidden lg:block' : ''}`}>
+        <div className={`min-w-0 bg-[#F2F5F9] px-3 py-3 sm:px-6 sm:py-5 lg:overflow-y-auto ${mobileTab !== 'preview' ? 'hidden lg:block' : ''}`}>
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h3 className={headingClass}>Bản xem trước</h3>
             <div className="inline-flex overflow-hidden rounded-lg border border-[#B9C8DA] bg-white text-[13px] font-semibold" role="group" aria-label="Kích thước xem trước">
               {([['desk', 'Máy tính'], ['mobile', 'Điện thoại']] as const).map(([key, label]) => (
                 <button key={key} type="button" aria-pressed={view === key} onClick={() => setView(key)}
-                  className={`px-3.5 py-1.5 ${view === key ? 'bg-[#002B66] text-white' : 'text-[#56678A]'}`}>{label}</button>
+                  className={`px-3 py-1 text-xs sm:px-3.5 sm:py-1.5 sm:text-[13px] ${view === key ? 'bg-[#002B66] text-white' : 'text-[#56678A]'}`}>{label}</button>
               ))}
             </div>
           </div>
-          <div className="mx-auto overflow-x-auto" style={{ maxWidth: frameWidth }}>
+          <div className="mx-auto flex justify-center overflow-x-auto max-w-full">
             <iframe
               ref={frameRef}
               title="Xem trước email"
               sandbox="allow-same-origin allow-popups"
               srcDoc={previewHtml}
               onLoad={measure}
-              className="block rounded-xl border border-[#D6E0EC] bg-[#F1F4F8] shadow-sm"
-              style={{ width: frameWidth, height: frameH }}
+              className="block rounded-xl border border-[#D6E0EC] bg-[#F1F4F8] shadow-sm max-w-full"
+              style={{ width: view === 'mobile' ? '100%' : frameWidth, maxWidth: frameWidth, height: frameH }}
             />
           </div>
         </div>

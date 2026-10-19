@@ -223,7 +223,7 @@ function EditorForm({ template, onClose }: { template: EmailTemplate | 'new'; on
   const queryClient = useQueryClient();
   const initial = template === 'new' ? blankTemplate : template;
   const [form, setForm] = useState<EmailTemplateInput>({ name: initial.name, subject: initial.subject, html: initial.html });
-  const [showPreview, setShowPreview] = useState(false);
+  const [mobileTab, setMobileTab] = useState<'info' | 'preview'>('info');
   // The preview iframe is edited in place (click text, type). Its document is the live editor, so it is only
   // reloaded when the HTML textarea changes, never from its own edits (that would reset the caret).
   const [seed, setSeed] = useState({ html: initial.html, rev: 0 });
@@ -244,8 +244,7 @@ function EditorForm({ template, onClose }: { template: EmailTemplate | 'new'; on
       const clone = doc.documentElement.cloneNode(true) as HTMLElement;
       clone.querySelector('body')?.removeAttribute('contenteditable');
       clone.querySelector('body')?.removeAttribute('style');
-      return `<!DOCTYPE html>
-${clone.outerHTML}`;
+      return `<!DOCTYPE html>\n${clone.outerHTML}`;
     };
 
     const syncHtml = () => setForm((current) => ({ ...current, html: serialize() }));
@@ -263,27 +262,46 @@ ${clone.outerHTML}`;
   return (
     <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex max-h-[94vh] w-[96vw] max-w-6xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
-        <Dialog.Title className="font-semibold">{template === 'new' ? 'Thêm mẫu email' : 'Chỉnh sửa mẫu email'}</Dialog.Title>
+        <Dialog.Title className="text-base font-semibold">{template === 'new' ? 'Thêm mẫu email' : 'Chỉnh sửa mẫu email'}</Dialog.Title>
         <Dialog.Close aria-label="Đóng"><X size={19} /></Dialog.Close>
       </div>
-      <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto p-4 sm:p-5 lg:grid-cols-2">
-        <div className="flex min-h-0 flex-col gap-4">
-          <label className="text-sm font-medium">Tên mẫu
+
+      {/* Mobile Tab Switcher */}
+      <div className="flex border-b border-border bg-muted/40 p-1 lg:hidden">
+        <button
+          type="button"
+          onClick={() => setMobileTab('info')}
+          className={`flex-1 rounded-xl py-2 text-center text-xs font-semibold transition-all ${
+            mobileTab === 'info' ? 'bg-card text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Thông tin
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileTab('preview')}
+          className={`flex-1 rounded-xl py-2 text-center text-xs font-semibold transition-all ${
+            mobileTab === 'preview' ? 'bg-card text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Nội dung thư
+        </button>
+      </div>
+
+      <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-2">
+        <div className={`flex min-h-0 flex-col gap-4 overflow-y-auto p-4 sm:p-5 border-b border-border lg:border-b-0 lg:border-r ${
+          mobileTab !== 'info' ? 'hidden lg:flex' : 'flex'
+        }`}>
+          <label className="text-xs font-semibold">Tên mẫu
             <input className={`${inputClass} mt-1`} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           </label>
-          <label className="text-sm font-medium">Tiêu đề email
+          <label className="text-xs font-semibold">Tiêu đề email
             <input className={`${inputClass} mt-1`} value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} />
           </label>
 
-          <div className="rounded-xl border border-border bg-muted/20 p-3 text-xs text-muted-foreground space-y-1">
-            <p className="font-semibold text-foreground">💡 Chỉnh sửa nội dung trực tiếp</p>
-            <p>Bấm trực tiếp vào chữ trong khung thư bên cạnh (hoặc bấm Xem trước) để sửa văn bản.</p>
-            <p className="pt-1">Biến có thể dùng: {previewFields.map((field) => `{{${field.key}}}`).join(', ')}</p>
-          </div>
-
           <details className="group rounded-xl border border-border bg-card p-3 text-xs text-muted-foreground transition">
             <summary className="cursor-pointer font-medium text-foreground hover:text-primary list-none flex items-center justify-between">
-              <span>Chỉnh sửa mã HTML nguồn (Dành cho kỹ thuật)</span>
+              <span>Chỉnh sửa mã HTML nguồn</span>
               <span className="text-muted-foreground group-open:rotate-180 transition-transform">▼</span>
             </summary>
             <div className="mt-3">
@@ -297,27 +315,29 @@ ${clone.outerHTML}`;
               />
             </div>
           </details>
-
-          <button
-            type="button"
-            onClick={() => setShowPreview((value) => !value)}
-            className="self-start text-sm font-semibold text-primary hover:underline lg:hidden"
-          >
-            {showPreview ? 'Ẩn xem trước' : 'Xem trước & sửa trực tiếp'}
-          </button>
         </div>
-        <div className={`${showPreview ? 'block' : 'hidden'} min-h-[460px] overflow-hidden rounded-xl border border-border bg-white shadow-xs lg:block`}>
-          <iframe key={seed.rev} ref={frameRef} onLoad={enableInlineEdit} title="Xem trước mẫu email" srcDoc={seed.html} className="h-full min-h-[460px] w-full" />
+
+        <div className={`flex min-h-0 flex-1 flex-col overflow-hidden bg-white ${
+          mobileTab !== 'preview' ? 'hidden lg:flex' : 'flex'
+        }`}>
+          <iframe
+            key={seed.rev}
+            ref={frameRef}
+            onLoad={enableInlineEdit}
+            title="Xem trước mẫu email"
+            srcDoc={seed.html}
+            className="h-full w-full flex-1 border-0 bg-white"
+          />
         </div>
       </div>
-      <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-4">
-        {mutation.isError && <span className="mr-auto text-sm text-red-600">Không lưu được mẫu.</span>}
-        <button onClick={onClose} className="rounded-xl px-4 py-2 text-sm">Hủy</button>
+      <div className="flex items-center justify-end gap-2 border-t border-border px-4 py-3 sm:px-5 sm:py-4 bg-card">
+        {mutation.isError && <span className="mr-auto text-xs text-red-600">Không lưu được mẫu.</span>}
+        <button onClick={onClose} className="rounded-xl px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">Hủy</button>
         <button
           onClick={() => mutation.mutate()}
           disabled={!form.name.trim() || !form.subject.trim() || !form.html.trim() || mutation.isPending}
-          className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-        ><Save size={15} /> {mutation.isPending ? 'Đang lưu...' : 'Lưu mẫu'}</button>
+          className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-50 shadow-xs"
+        ><Save size={14} /> {mutation.isPending ? 'Đang lưu...' : 'Lưu mẫu'}</button>
       </div>
     </Dialog.Content>
   );
@@ -326,6 +346,7 @@ ${clone.outerHTML}`;
 function PreviewDialog({ template, onClose, onNotice }: { template: EmailTemplate | null; onClose: () => void; onNotice: (message: string) => void }) {
   const [values, setValues] = useState<Record<string, string>>({});
   const [copying, setCopying] = useState(false);
+  const [mobileTab, setMobileTab] = useState<'info' | 'preview'>('info');
   const renderedHtml = useMemo(() => template ? fillVariables(template.html, values) : '', [template, values]);
   const renderedSubject = useMemo(() => template ? fillTextVariables(template.subject, values) : '', [template, values]);
 
@@ -335,16 +356,17 @@ function PreviewDialog({ template, onClose, onNotice }: { template: EmailTemplat
     const text = template ? `${template.subject} ${template.html}` : '';
     return previewFields.filter((f) => text.includes(`{{${f.key}}}`));
   }, [template]);
+
   async function copyEmail() {
     setCopying(true);
     try {
       // Copy only the rendered body fragment. Supplying a complete HTML document
       // can make Chromium-based mail editors paste both the document and fragment.
       await copyEmailHtml(renderedHtml);
-      onNotice('Đã sao chép nội dung email. Bạn có thể dán trực tiếp vào Gmail hoặc Outlook.');
+      onNotice('Đã sao chép nội dung email.');
       onClose();
     } catch {
-      onNotice('Trình duyệt không cho phép sao chép định dạng. Hãy thử lại trên HTTPS hoặc localhost.');
+      onNotice('Trình duyệt không cho phép sao chép định dạng.');
     } finally {
       setCopying(false);
     }
@@ -361,29 +383,86 @@ function PreviewDialog({ template, onClose, onNotice }: { template: EmailTemplat
         <Dialog.Overlay className="fixed inset-0 z-40 bg-black/45" />
         {template && (
           <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex max-h-[94vh] w-[96vw] max-w-7xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
-            <div className="flex items-center justify-between border-b border-border px-5 py-4">
-              <div><Dialog.Title className="font-semibold">{template.name}</Dialog.Title><Dialog.Description className="text-xs text-muted-foreground">Điền thông tin, kiểm tra bản xem trước rồi sao chép để gửi.</Dialog.Description></div>
+            <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
+              <Dialog.Title className="text-base font-semibold">{template.name}</Dialog.Title>
               <Dialog.Close aria-label="Đóng"><X size={19} /></Dialog.Close>
             </div>
-            <div className="grid min-h-0 flex-1 overflow-y-auto lg:grid-cols-[310px_1fr]">
-              <div className="space-y-3 border-b border-border p-5 lg:border-b-0 lg:border-r">
-                {usedFields.map((field) => (
-                  <label key={field.key} className="block text-sm font-medium">{field.label}
-                    <input className={`${inputClass} mt-1`} placeholder={field.placeholder} value={values[field.key] ?? ''} onChange={(e) => setValues({ ...values, [field.key]: e.target.value })} />
-                  </label>
-                ))}
-                <div className="pt-2 text-xs text-muted-foreground">Biến chưa điền sẽ vẫn hiện dạng <code>{'{{tenHocSinh}}'}</code> để dễ nhận biết.</div>
+
+            {/* Mobile Tab Switcher */}
+            <div className="flex border-b border-border bg-muted/40 p-1 lg:hidden">
+              <button
+                type="button"
+                onClick={() => setMobileTab('info')}
+                className={`flex-1 rounded-xl py-2 text-center text-xs font-semibold transition-all ${
+                  mobileTab === 'info' ? 'bg-card text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Thông tin
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobileTab('preview')}
+                className={`flex-1 rounded-xl py-2 text-center text-xs font-semibold transition-all ${
+                  mobileTab === 'preview' ? 'bg-card text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Xem trước thư
+              </button>
+            </div>
+
+            <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[320px_1fr]">
+              <div className={`space-y-3 overflow-y-auto border-b border-border p-4 sm:p-5 lg:border-b-0 lg:border-r bg-muted/15 ${
+                mobileTab !== 'info' ? 'hidden lg:block' : 'block'
+              }`}>
+                {usedFields.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">Mẫu này không có trường biến cần điền trước.</p>
+                ) : (
+                  usedFields.map((field) => (
+                    <label key={field.key} className="block text-xs font-medium">
+                      <span>{field.label}</span>
+                      <input
+                        className={`${inputClass} mt-1`}
+                        placeholder={field.placeholder}
+                        value={values[field.key] ?? ''}
+                        onChange={(e) => setValues({ ...values, [field.key]: e.target.value })}
+                      />
+                    </label>
+                  ))
+                )}
               </div>
-              <div className="min-h-[580px] bg-white">
-                <iframe title="Email đã điền" sandbox="allow-popups" srcDoc={renderedHtml} className="h-full min-h-[580px] w-full" />
+              <div className={`flex min-h-0 flex-1 flex-col overflow-hidden bg-white ${
+                mobileTab !== 'preview' ? 'hidden lg:flex' : 'flex'
+              }`}>
+                <iframe
+                  title="Email đã điền"
+                  sandbox="allow-popups allow-same-origin"
+                  srcDoc={renderedHtml}
+                  className="h-full w-full flex-1 border-0 bg-white"
+                />
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2 border-t border-border px-5 py-4">
-              <div className="min-w-0 flex-1 truncate text-sm"><span className="text-muted-foreground">Tiêu đề: </span>{renderedSubject}</div>
-              <button onClick={copySubject} className="rounded-xl border border-border px-3 py-2 text-sm">Copy tiêu đề</button>
-              <button onClick={copyEmail} disabled={copying} className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">
-                <Copy size={15} /> {copying ? 'Đang sao chép...' : 'Sao chép để gửi'}
-              </button>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-4 py-3 sm:px-5 sm:py-3.5 bg-card">
+              <div className="min-w-0 flex-1 truncate text-xs sm:text-sm">
+                <span className="text-muted-foreground mr-1">Tiêu đề:</span>
+                <span className="font-semibold text-foreground">{renderedSubject}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={copySubject}
+                  className="rounded-xl border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                >
+                  Copy tiêu đề
+                </button>
+                <button
+                  type="button"
+                  onClick={copyEmail}
+                  disabled={copying}
+                  className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground hover:brightness-95 disabled:opacity-50 transition-all shadow-xs"
+                >
+                  <Copy size={14} /> {copying ? 'Đang sao chép...' : 'Sao chép để gửi'}
+                </button>
+              </div>
             </div>
           </Dialog.Content>
         )}
