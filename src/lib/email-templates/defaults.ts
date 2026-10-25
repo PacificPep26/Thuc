@@ -58,6 +58,12 @@ const DEFAULTS = [
     replacements: [],
   },
   {
+    seedKey: 'interview-reminder',
+    file: 'nhac-lich-phong-van-visa-my.html',
+    name: 'Nhắc lịch phỏng vấn visa Mỹ',
+    replacements: [],
+  },
+  {
     seedKey: 'invoice-reissue-pending',
     file: 'cap-nhat-cho-cap-lai-hoa-don.html',
     name: 'Cập nhật hồ sơ – chờ cấp lại hóa đơn',
