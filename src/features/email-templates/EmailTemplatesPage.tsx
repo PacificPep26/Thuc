@@ -382,7 +382,7 @@ function PreviewDialog({ template, onClose, onNotice }: { template: EmailTemplat
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-40 bg-black/45" />
         {template && (
-          <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex max-h-[94vh] w-[96vw] max-w-7xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
+          <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex h-[90vh] max-h-[860px] w-[96vw] max-w-7xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
             <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
               <Dialog.Title className="text-base font-semibold">{template.name}</Dialog.Title>
               <Dialog.Close aria-label="Đóng"><X size={19} /></Dialog.Close>
