@@ -260,7 +260,7 @@ function EditorForm({ template, onClose }: { template: EmailTemplate | 'new'; on
   });
 
   return (
-    <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex max-h-[94vh] w-[96vw] max-w-6xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
+    <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex h-[92dvh] max-h-[860px] w-[96vw] max-w-6xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <Dialog.Title className="text-base font-semibold">{template === 'new' ? 'Thêm mẫu email' : 'Chỉnh sửa mẫu email'}</Dialog.Title>
         <Dialog.Close aria-label="Đóng"><X size={19} /></Dialog.Close>

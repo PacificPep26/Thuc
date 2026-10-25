@@ -195,3 +195,11 @@ select option {
   color: var(--card-foreground);
   text-transform: none;
 }
+
+/* Every dialog stays inside the visible screen on phones (dvh follows the browser bars), with a small margin. */
+@media (max-width: 640px) {
+  [role='dialog'][data-state='open'] {
+    max-width: calc(100vw - 12px) !important;
+    max-height: calc(100dvh - 12px) !important;
+  }
+}

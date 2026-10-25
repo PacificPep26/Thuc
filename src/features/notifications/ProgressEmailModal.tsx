@@ -817,7 +817,7 @@ export function ProgressEmailModal({ studentId, stageKey, onClose }: ProgressEma
     <Dialog.Root open={open} onOpenChange={(next) => !next && onClose()}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex max-h-[95vh] w-[96vw] max-w-7xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex h-[92dvh] max-h-[900px] w-[96vw] max-w-7xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6 sm:py-3.5">
             <div className="min-w-0">
