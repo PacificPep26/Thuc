@@ -84,7 +84,7 @@ export function DailyNotesHeader() {
       <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
-          <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex max-h-[90vh] w-[94vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
+          <Dialog.Content className="fixed inset-2 z-50 flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-xl sm:inset-4">
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <div>
                 <Dialog.Title className="font-semibold">Lịch ghi chú</Dialog.Title>
@@ -92,8 +92,8 @@ export function DailyNotesHeader() {
               </div>
               <Dialog.Close aria-label="Đóng"><X size={19} /></Dialog.Close>
             </div>
-            <div className="grid min-h-0 flex-1 overflow-y-auto md:grid-cols-[220px_1fr]">
-              <aside className="border-b border-border p-4 md:border-b-0 md:border-r">
+            <div className="grid min-h-0 flex-1 overflow-y-auto md:grid-cols-[260px_1fr] md:overflow-hidden">
+              <aside className="border-b border-border p-4 md:overflow-y-auto md:border-b-0 md:border-r">
                 <label className="text-sm font-medium">Chọn ngày
                   <input
                     type="date"
@@ -118,7 +118,8 @@ export function DailyNotesHeader() {
                   {!isLoading && upcoming.length === 0 && <span className="text-xs text-muted-foreground">Chưa có ghi chú sắp tới.</span>}
                 </div>
               </aside>
-              <div className="flex min-h-[330px] flex-col gap-3 p-5">
+              <div className="flex min-h-[420px] min-w-0 flex-col gap-3 bg-muted/40 p-3 sm:p-6 md:min-h-0 md:overflow-y-auto">
+                <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-3 rounded-xl border border-border bg-background p-4 shadow-sm sm:p-8">
                 <div>
                   <p className="text-sm font-semibold">{selectedDate === today ? 'Hôm nay' : formatDate(selectedDate)}</p>
                   <p className="text-xs text-muted-foreground">Nội dung có thể chỉnh sửa bất cứ lúc nào.</p>
@@ -127,7 +128,7 @@ export function DailyNotesHeader() {
                   value={content}
                   onChange={(event) => setDrafts((current) => ({ ...current, [selectedDate]: event.target.value }))}
                   placeholder="Nhập công việc, lịch hẹn hoặc thông tin cần nhớ cho ngày này…"
-                  className="min-h-52 flex-1 resize-y rounded-xl border border-border bg-background p-3 text-sm leading-relaxed outline-none focus:ring-2 focus:ring-ring"
+                  className="min-h-64 flex-1 resize-none border-0 bg-transparent p-0 text-base leading-8 outline-none placeholder:text-muted-foreground/60"
                 />
                 {(saveMutation.isError || deleteMutation.isError) && <p className="text-sm text-red-600">Không thể cập nhật ghi chú.</p>}
                 <div className="flex justify-between gap-2">
@@ -143,6 +144,7 @@ export function DailyNotesHeader() {
                     disabled={!content.trim() || saveMutation.isPending}
                     className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
                   ><Save size={15} /> {saveMutation.isPending ? 'Đang lưu…' : 'Lưu ghi chú'}</button>
+                </div>
                 </div>
               </div>
             </div>
