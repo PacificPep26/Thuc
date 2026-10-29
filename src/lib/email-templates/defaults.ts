@@ -64,6 +64,12 @@ const DEFAULTS = [
     replacements: [],
   },
   {
+    seedKey: 'email-signature',
+    file: 'chu-ky-email.html',
+    name: 'Chữ ký email',
+    replacements: [],
+  },
+  {
     seedKey: 'invoice-reissue-pending',
     file: 'cap-nhat-cho-cap-lai-hoa-don.html',
     name: 'Cập nhật hồ sơ – chờ cấp lại hóa đơn',
